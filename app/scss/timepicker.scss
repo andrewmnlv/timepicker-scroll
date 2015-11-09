@@ -1,0 +1,33 @@
+.timePicker {
+  border: 1px solid black;
+  width: 100px;
+  height: 200px;
+  overflow: hidden;
+
+  &__col {
+    border: 1px solid red;
+    height: 100%;
+    width: 33%;
+    overflow: hidden;
+    float: left;
+    box-sizing: border-box;
+    position: relative;
+  }
+
+  &__hours {
+    position: absolute;
+    width: 100%;
+    top: 50%;
+  }
+
+  &__minutes {
+    position: absolute;
+    width: 100%;
+    top: 50%;
+  }
+
+  &__item {
+    text-align: center;
+  }
+
+}
