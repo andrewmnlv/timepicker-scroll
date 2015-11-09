@@ -27,17 +27,38 @@ console.log('rdy');
             var $colHours = $('<div class="timePicker__col"></div>');
             $colHours.append($hours);
 
-            $colHours.on('mousewheel', function (event) {
+            $colHours
+                .on('mousewheel', function (event) {
 
-                var top = parseInt($hours.css('top'));
+                    var top = parseInt($hours.css('top'));
 
-                top = top - (event.deltaY * 3);
+                    top = top - (event.deltaY * 3);
 
-                $hours.css({
-                    top: top
+                    $hours.css({
+                        top: top
+                    });
+
+                }).on('mousedown', function (e) {
+                    console.log('mousedown');
+                    var self = $(this);
+                    moveAt(e);
+
+                    function moveAt(e) {
+                        console.log(e.pageY);
+                        console.log($(this));
+                        $hours.css({
+                            top: e.pageY
+                        });
+                    }
+
+                    //TODO: сделать пространство имен
+                    document.onmousemove = function (e) {
+                        moveAt(e);
+                    }
+                }).on('mouseup', function(){
+                    document.onmousemove = null;
+                    $hours.onmouseup = null;
                 });
-
-            });
 
 
             var $minutes = $('<div></div>').addClass('timePicker__minutes');
