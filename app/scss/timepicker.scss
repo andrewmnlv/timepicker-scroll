@@ -18,6 +18,8 @@
     position: absolute;
     width: 100%;
     top: 50%;
+    border: 1px solid green;
+    box-sizing: border-box;
   }
 
   &__minutes {

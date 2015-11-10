@@ -49,21 +49,11 @@ console.log " #{}"
         @colWrap.on 'mousedown', (e)->
           self = $(this)
 
-          console.log "e.pageY #{e.pageY}"
-
-          console.log "self.offset()?.top #{self.offset()?.top}"
-
-          shiftY = e.pageY - self.offset()?.top
-
-          console.log "shiftY #{shiftY}"
-
-          deltaY = e.pageY - self.offset()?.top - column.position().top
-
-          console.log "deltaY #{deltaY}"
+          shiftY = e.pageY - column.position().top
 
           moveAt = (e)->
             column.css
-              top: e.pageY - self.offset()?.top - deltaY
+              top: e.pageY - shiftY
 
           #moveAt(e)
 
