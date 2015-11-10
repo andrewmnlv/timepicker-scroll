@@ -1,5 +1,6 @@
 console.log 'rdy'
 
+console.log " #{}"
 
 (($, window) ->
   defaults =
@@ -48,13 +49,23 @@ console.log 'rdy'
         @colWrap.on 'mousedown', (e)->
           self = $(this)
 
+          console.log "e.pageY #{e.pageY}"
+
+          console.log "self.offset()?.top #{self.offset()?.top}"
+
           shiftY = e.pageY - self.offset()?.top
+
+          console.log "shiftY #{shiftY}"
+
+          deltaY = e.pageY - self.offset()?.top - column.position().top
+
+          console.log "deltaY #{deltaY}"
 
           moveAt = (e)->
             column.css
-              top: e.pageY - shiftY
+              top: e.pageY - self.offset()?.top - deltaY
 
-          moveAt(e)
+          #moveAt(e)
 
           document.onmousemove = (e)->
             moveAt(e)
