@@ -82,28 +82,27 @@ console.log 'rdy'
           @_setActive @curItem
 
       _initEvents: ->
-        column = @col
-        setActive = @_setActive
-        _checkActive = @_checkActive
+        @$el.on 'mousewheel', @_onMouseWheel
+        @$el.on 'mousedown', @_onMouseDown
+        $(window).on 'mouseup', @_onMouseUp
 
-        @$el.on 'mousewheel', (e)->
-          console.log e.deltaY * 3
+      _onMouseWheel: (e)->
+        console.log e.deltaY * 3
 
-        @$el.on 'mousedown', (e)->
-          self = $(this)
+      _onMouseDown: (e)=>
+        shiftY = e.pageY - @col.position().top
 
-          shiftY = e.pageY - column.position().top
+        moveAt = (e)=>
+          @_checkActive()
+          @col.css
+            top: e.pageY - shiftY
 
-          moveAt = (e)->
-            _checkActive()
-            column.css
-              top: e.pageY - shiftY
+        document.onmousemove = (e)->
+          moveAt(e)
 
-          document.onmousemove = (e)->
-            moveAt(e)
+      _onMouseUp: (e)->
+        document.onmousemove = null
 
-        $(window).on 'mouseup', ->
-          document.onmousemove = null
 
       getEl: ->
         @$el
