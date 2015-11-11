@@ -1,7 +1,5 @@
 console.log 'rdy'
 
-console.log " #{}"
-
 (($, window) ->
   defaults =
     step: 5
@@ -12,6 +10,7 @@ console.log " #{}"
     pickerHeigth = 0
 
     class Item
+      $el: null
       className: 'timePicker__item'
       constructor: (value, text)->
         @$el = $('<div></div>').addClass(@className).attr('value', value).text(text)
@@ -25,23 +24,31 @@ console.log " #{}"
       setActive: ->
         @getEl().addClass("#{@className}--active")
 
+      getHeight: ->
+        @getEl().height()
+
 
     class Column
 
-      columnClassName: 'timePicker__col'
+      $el: null
+
+      className: 'timePicker__col'
+
+      $items: null
+
+      curItem: null
 
       constructor: (options)->
-        console.log 'init column'
         @options = $.extend {}, options
         @items = []
         @_createEl()
         @_initEvents()
 
       _createEl: ->
-        @colWrap = $('<div></div>').addClass @columnClassName
+        @$el = $('<div></div>').addClass @className
         @col = $('<div></div>').addClass @options.className
         @_drawItems()
-        @colWrap.append @col
+        @$el.append @col
 
       _drawItems: ->
         @items = []
@@ -50,40 +57,47 @@ console.log " #{}"
           @items.push item
           @col.append item.getEl()
 
+      _findCurItem: ->
+        itemHeight = @items[0].getHeight()
+        halfHeight = pickerHeigth / 2
+        columnTop = @col.position().top
+        shiftY = halfHeight - columnTop
+        console.log @curItem = Math.floor shiftY / itemHeight
+
       _clearActive: ->
         for item in @items
           item.setInactive()
 
+      _setActive: (indx)=>
+        @_clearActive()
+        @items[indx].setActive()
+
+      _checkActive: =>
+        itemHeight = @items[0].getHeight()
+        halfHeight = pickerHeigth / 2
+        columnTop = @col.position().top
+        dragItem = Math.floor (halfHeight - columnTop) / itemHeight
+        if @curItem isnt dragItem
+          @curItem = dragItem
+          @_setActive @curItem
+
       _initEvents: ->
         column = @col
-        setActive = (indx)=>
-          @_clearActive()
-          @items[indx].setActive()
+        setActive = @_setActive
+        _checkActive = @_checkActive
 
-
-        @colWrap.on 'mousewheel', (e)->
+        @$el.on 'mousewheel', (e)->
           console.log e.deltaY * 3
 
-        @colWrap.on 'mousedown', (e)->
+        @$el.on 'mousedown', (e)->
           self = $(this)
 
           shiftY = e.pageY - column.position().top
 
-          halfHeight = pickerHeigth / 2
-
-          x = halfHeight - column.position().top
-
-          curItem = Math.floor x / 24
-
           moveAt = (e)->
-            dragItem = Math.floor (halfHeight - column.position().top) / 24
-            if curItem isnt dragItem
-              curItem = dragItem
-              setActive curItem
+            _checkActive()
             column.css
               top: e.pageY - shiftY
-
-          #moveAt(e)
 
           document.onmousemove = (e)->
             moveAt(e)
@@ -92,7 +106,7 @@ console.log " #{}"
           document.onmousemove = null
 
       getEl: ->
-        @colWrap
+        @$el
 
 
     make = ()->
