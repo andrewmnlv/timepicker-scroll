@@ -42,6 +42,9 @@ console.log 'rdy'
         @_createEl()
         @_initEvents()
 
+      init: ->
+        @_scrollToActive()
+
       _createEl: ->
         @$el = $('<div></div>').addClass @className
         @col = $('<div></div>').addClass @options.className
@@ -72,7 +75,7 @@ console.log 'rdy'
 
       _scrollToActive: ->
         halfHeight = pickerHeigth / 2
-        console.log top = halfHeight - @curIndex * @items[0].getHeight()
+        top = halfHeight - @curIndex * @items[0].getHeight()
         @_setTop(top)
 
       _checkActive: =>
@@ -138,17 +141,18 @@ console.log 'rdy'
 
 
     make = ()->
-      console.log $(this)
-
       $(this).addClass 'timePicker';
+
+      pickerHeigth = $(this).height()
 
       #create column
       $hours = new Column
         className: 'timePicker__hours'
 
       $(this).append $hours.getEl()
+      $hours.init()
+
       $(this).append $('<div class="timePicker__center"></div>')
 
-      pickerHeigth = $(this).height()
 
     this.each make) jQuery, window
