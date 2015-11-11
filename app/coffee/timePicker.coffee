@@ -34,7 +34,7 @@ console.log 'rdy'
 
       className: 'timePicker__col'
 
-      curItem: null
+      curIndex: null
 
       constructor: (options)->
         @options = $.extend {}, options
@@ -60,7 +60,7 @@ console.log 'rdy'
         halfHeight = pickerHeigth / 2
         columnTop = @col.position().top
         shiftY = halfHeight - columnTop
-        console.log @curItem = Math.floor shiftY / itemHeight
+        console.log @curIndex = Math.floor shiftY / itemHeight
 
       _clearActive: ->
         for item in @items
@@ -70,14 +70,19 @@ console.log 'rdy'
         @_clearActive()
         @items[indx].setActive()
 
+      _scrollToActive: ->
+        halfHeight = pickerHeigth / 2
+        console.log top = halfHeight - @curIndex * @items[0].getHeight()
+        @_setTop(top)
+
       _checkActive: =>
         itemHeight = @items[0].getHeight()
         halfHeight = pickerHeigth / 2
         columnTop = @col.position().top
         dragItem = Math.floor (halfHeight - columnTop) / itemHeight
-        if @curItem isnt dragItem and dragItem < @items.length
-          @curItem = dragItem
-          @_setActive @curItem
+        if @curIndex isnt dragItem and dragItem < @items.length
+          @curIndex = dragItem
+          @_setActive @curIndex
 
       _verifyPosition: (top, e)->
         halfHeight = pickerHeigth / 2
@@ -94,6 +99,9 @@ console.log 'rdy'
 
         if clearShiftY and e then @shiftY = e.pageY - @col.position().top
 
+        @_setTop(top)
+
+      _setTop: (top)->
         @col.css
           top: top
 
@@ -118,8 +126,9 @@ console.log 'rdy'
         document.onmousemove = (e)->
           moveAt(e)
 
-      _onMouseUp: (e)->
+      _onMouseUp: (e)=>
         document.onmousemove = null
+        @_scrollToActive()
 
 
       getEl: ->
