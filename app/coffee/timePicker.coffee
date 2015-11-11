@@ -34,8 +34,6 @@ console.log 'rdy'
 
       className: 'timePicker__col'
 
-      $items: null
-
       curItem: null
 
       constructor: (options)->
@@ -77,25 +75,36 @@ console.log 'rdy'
         halfHeight = pickerHeigth / 2
         columnTop = @col.position().top
         dragItem = Math.floor (halfHeight - columnTop) / itemHeight
-        if @curItem isnt dragItem
+        if @curItem isnt dragItem and dragItem < @items.length
           @curItem = dragItem
           @_setActive @curItem
+
+      _verifyPosition: (top)->
+        halfHeight = pickerHeigth / 2
+        columnTop = @col.position().top
+        columnHeight = @col.height()
+        unless columnHeight + columnTop > halfHeight
+          top = halfHeight
+        @col.css
+          top: top
 
       _initEvents: ->
         @$el.on 'mousewheel', @_onMouseWheel
         @$el.on 'mousedown', @_onMouseDown
         $(window).on 'mouseup', @_onMouseUp
 
-      _onMouseWheel: (e)->
-        console.log e.deltaY * 3
+      _onMouseWheel: (e)=>
+        top = @col.position().top + e.deltaY * @items[0].getHeight()
+        @_verifyPosition(top)
+        @_checkActive()
 
       _onMouseDown: (e)=>
         shiftY = e.pageY - @col.position().top
 
         moveAt = (e)=>
+          top = e.pageY - shiftY
+          @_verifyPosition(top)
           @_checkActive()
-          @col.css
-            top: e.pageY - shiftY
 
         document.onmousemove = (e)->
           moveAt(e)
