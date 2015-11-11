@@ -2,6 +2,7 @@ gulp = require 'gulp'
 coffee = require 'gulp-coffee'
 gutil = require 'gulp-util'
 sass = require 'gulp-sass'
+autoprefixer = require 'gulp-autoprefixer'
 browserSync = require('browser-sync').create()
 
 gulp.task 'default', ['serve'], ->
@@ -17,6 +18,8 @@ gulp.task 'coffee-watch', ['coffee'], -> browserSync.reload()
 gulp.task 'sass', ->
   gulp.src './app/scss/**/*.scss'
   .pipe sass()
+  .pipe autoprefixer
+    browsers: ['last 3 versions']
   .pipe gulp.dest './public/css'
   .pipe browserSync.stream()
 
