@@ -82,9 +82,15 @@ console.log 'rdy'
       _verifyPosition: (top, e)->
         halfHeight = pickerHeigth / 2
         columnHeight = @col.height()
+
         unless columnHeight + top > halfHeight
           top = halfHeight
           if e then @shiftY = e.pageY - @col.position().top
+
+        if top > halfHeight
+          top = halfHeight - columnHeight
+          if e then @shiftY = e.pageY - @col.position().top
+
         @col.css
           top: top
 
