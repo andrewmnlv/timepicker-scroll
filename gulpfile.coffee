@@ -29,6 +29,8 @@ gulp.task 'html-watch', ['html'], -> browserSync.reload()
 gulp.task 'serve', ['coffee', 'sass', 'html'], ->
   browserSync.init
     open: false
+    browser: "google chrome"
+    reloadOnRestart: true
     server:
       baseDir: "./public"
 
