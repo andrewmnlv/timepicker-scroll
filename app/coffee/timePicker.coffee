@@ -108,7 +108,6 @@ console.log 'rdy'
       _initEvents: ->
         @$el.on 'mousewheel', @_onMouseWheel
         @$el.on 'mousedown', @_onMouseDown
-        $(window).on 'mouseup', @_onMouseUp
 
       _onMouseWheel: (e)=>
         top = @col.position().top + e.deltaY * @items[0].getHeight()
@@ -126,9 +125,12 @@ console.log 'rdy'
         document.onmousemove = (e)->
           moveAt(e)
 
+        $(window).on 'mouseup.timePicker', @_onMouseUp
+
       _onMouseUp: (e)=>
         document.onmousemove = null
         @_scrollToActive()
+        $(window).off 'mouseup.timePicker'
 
 
       getEl: ->
@@ -141,7 +143,6 @@ console.log 'rdy'
       $(this).addClass 'timePicker';
 
       #create column
-
       $hours = new Column
         className: 'timePicker__hours'
 
