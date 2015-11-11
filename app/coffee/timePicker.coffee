@@ -79,12 +79,12 @@ console.log 'rdy'
           @curItem = dragItem
           @_setActive @curItem
 
-      _verifyPosition: (top)->
+      _verifyPosition: (top, e)->
         halfHeight = pickerHeigth / 2
-        columnTop = @col.position().top
         columnHeight = @col.height()
-        unless columnHeight + columnTop > halfHeight
+        unless columnHeight + top > halfHeight
           top = halfHeight
+          if e then @shiftY = e.pageY - @col.position().top
         @col.css
           top: top
 
@@ -99,11 +99,11 @@ console.log 'rdy'
         @_checkActive()
 
       _onMouseDown: (e)=>
-        shiftY = e.pageY - @col.position().top
+        @shiftY = e.pageY - @col.position().top
 
         moveAt = (e)=>
-          top = e.pageY - shiftY
-          @_verifyPosition(top)
+          top = e.pageY - @shiftY
+          @_verifyPosition(top, e)
           @_checkActive()
 
         document.onmousemove = (e)->
