@@ -3,6 +3,26 @@
   width: 100px;
   height: 200px;
   overflow: hidden;
+  position: relative;
+
+  &__center {
+    position: absolute;
+    top: 50%;
+    width: 100%;
+    left: 0;
+    right: 0;
+    &::before, &::after {
+      content: "";
+      position: absolute;
+      box-sizing: border-box;
+      border-top: 1px solid gray;
+      width: 100%;
+      margin-top: -12px;
+    }
+    &::after {
+      margin-top: 12px;
+    }
+  }
 
   &__col {
     border: 1px solid red;
@@ -30,6 +50,11 @@
 
   &__item {
     text-align: center;
+    height: 24px;
+    line-height: 24px;
+    &--active {
+      font-weight: bold;
+    }
   }
 
 }

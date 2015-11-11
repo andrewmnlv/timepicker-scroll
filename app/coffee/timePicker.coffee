@@ -9,6 +9,7 @@ console.log " #{}"
   $.fn.timePicker = (options)->
     options = $.extend defaults, options
 
+    pickerHeigth = 0
 
     class Item
       className: 'timePicker__item'
@@ -18,6 +19,12 @@ console.log " #{}"
       getEl: ->
         @$el
 
+      setInactive: ->
+        @getEl().removeClass("#{@className}--active")
+
+      setActive: ->
+        @getEl().addClass("#{@className}--active")
+
 
     class Column
 
@@ -26,6 +33,7 @@ console.log " #{}"
       constructor: (options)->
         console.log 'init column'
         @options = $.extend {}, options
+        @items = []
         @_createEl()
         @_initEvents()
 
@@ -36,12 +44,22 @@ console.log " #{}"
         @colWrap.append @col
 
       _drawItems: ->
+        @items = []
         for num in [0..11]
           item = new Item num, num
+          @items.push item
           @col.append item.getEl()
+
+      _clearActive: ->
+        for item in @items
+          item.setInactive()
 
       _initEvents: ->
         column = @col
+        setActive = (indx)=>
+          @_clearActive()
+          @items[indx].setActive()
+
 
         @colWrap.on 'mousewheel', (e)->
           console.log e.deltaY * 3
@@ -51,7 +69,17 @@ console.log " #{}"
 
           shiftY = e.pageY - column.position().top
 
+          halfHeight = pickerHeigth / 2
+
+          x = halfHeight - column.position().top
+
+          curItem = Math.floor x / 24
+
           moveAt = (e)->
+            dragItem = Math.floor (halfHeight - column.position().top) / 24
+            if curItem isnt dragItem
+              curItem = dragItem
+              setActive curItem
             column.css
               top: e.pageY - shiftY
 
@@ -78,5 +106,8 @@ console.log " #{}"
         className: 'timePicker__hours'
 
       $(this).append $hours.getEl()
+      $(this).append $('<div class="timePicker__center"></div>')
+
+      pickerHeigth = $(this).height()
 
     this.each make) jQuery, window
