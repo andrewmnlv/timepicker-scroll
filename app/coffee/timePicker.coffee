@@ -43,6 +43,7 @@ console.log 'rdy'
         @_initEvents()
 
       init: ->
+        @_setActive 0
         @_scrollToActive()
 
       _createEl: ->
@@ -70,13 +71,14 @@ console.log 'rdy'
           item.setInactive()
 
       _setActive: (indx)=>
+        @curIndex = indx || 0
         @_clearActive()
-        @items[indx].setActive()
+        @items[@curIndex].setActive()
 
       _scrollToActive: ->
         halfHeight = pickerHeigth / 2
         top = halfHeight - @curIndex * @items[0].getHeight()
-        @_setTop(top)
+        @_setTop(top - @items[0].getHeight() / 2)
 
       _checkActive: =>
         itemHeight = @items[0].getHeight()
@@ -84,8 +86,7 @@ console.log 'rdy'
         columnTop = @col.position().top
         dragItem = Math.floor (halfHeight - columnTop) / itemHeight
         if @curIndex isnt dragItem and dragItem < @items.length
-          @curIndex = dragItem
-          @_setActive @curIndex
+          @_setActive dragItem
 
       _verifyPosition: (top, e)->
         halfHeight = pickerHeigth / 2
@@ -113,9 +114,17 @@ console.log 'rdy'
         @$el.on 'mousedown', @_onMouseDown
 
       _onMouseWheel: (e)=>
-        top = @col.position().top + e.deltaY * @items[0].getHeight()
-        @_verifyPosition(top)
-        @_checkActive()
+        tempIndex = @curIndex
+        if e.deltaY < 0
+          tempIndex++
+        else if e.deltaY > 0
+          tempIndex--
+        if tempIndex < 0
+          tempIndex = @items.length - 1
+        unless tempIndex < @items.length
+          tempIndex = 0
+        @_setActive(tempIndex)
+        @_scrollToActive()
 
       _onMouseDown: (e)=>
         @shiftY = e.pageY - @col.position().top
