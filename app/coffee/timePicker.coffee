@@ -27,8 +27,37 @@ console.log 'rdy'
       getHeight: ->
         @getEl().height()
 
-
     class Column
+      data: null
+      index: 0
+      length: 0
+      constructor: (array)->
+        @data = array
+        @length = array.length
+        return {
+        rewind: =>
+          @_rewind()
+        current: =>
+          @data[++@index]
+        next: =>
+          unless @_hasNext()
+            @_rewind()
+          @data[++@index]
+        prev: =>
+          unless @_hasPrev()
+            @_wind()
+          @data[--@index]
+        }
+      _hasNext: ->
+        @index < @length
+      _hasPrev: ->
+        @index > 0
+      _wind: ->
+        @index = @length
+      _rewind: ->
+        @index = 0
+
+    class ColumnView
 
       $el: null
 
@@ -110,7 +139,7 @@ console.log 'rdy'
           top: top
 
       _initEvents: ->
-        #TODO _.throttle
+#TODO _.throttle
         @$el.on 'mousewheel', _.throttle @_onMouseWheel, 200
         @$el.on 'mousedown', @_onMouseDown
 
@@ -156,7 +185,7 @@ console.log 'rdy'
       pickerHeigth = $(this).height()
 
       #create column
-      $hours = new Column
+      $hours = new ColumnView
         className: 'timePicker__hours'
 
       $(this).append $hours.getEl()
