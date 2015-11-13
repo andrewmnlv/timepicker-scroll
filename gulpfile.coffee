@@ -4,13 +4,17 @@ gutil = require 'gulp-util'
 sass = require 'gulp-sass'
 autoprefixer = require 'gulp-autoprefixer'
 browserSync = require('browser-sync').create()
+sourcemaps = require 'gulp-sourcemaps'
 
 gulp.task 'default', ['serve'], ->
   console.log 'gulp default'
 
 gulp.task 'coffee', ->
   gulp.src './app/coffee/**/*.coffee'
-  .pipe coffee().on 'error', gutil.log
+  .pipe sourcemaps.init()
+  .pipe coffee()
+    .on 'error', gutil.log
+  .pipe sourcemaps.write()
   .pipe gulp.dest './public/js'
 
 gulp.task 'coffee-watch', ['coffee'], -> browserSync.reload()
