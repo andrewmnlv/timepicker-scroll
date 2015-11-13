@@ -7,7 +7,7 @@ do ($ = jQuery, window = window) ->
   $.fn.timePicker = (options)->
     options = $.extend defaults, options
 
-    pickerHeigth = 0
+    pickerHeight = 0
 
     class Item
       $el: null
@@ -94,7 +94,7 @@ do ($ = jQuery, window = window) ->
 
       _findCurItem: ->
         itemHeight = @items[0].getHeight()
-        halfHeight = pickerHeigth / 2
+        halfHeight = pickerHeight / 2
         columnTop = @col.position().top
         shiftY = halfHeight - columnTop
         console.log @curIndex = Math.floor shiftY / itemHeight
@@ -109,20 +109,20 @@ do ($ = jQuery, window = window) ->
         @items[@curIndex].setActive()
 
       _scrollToActive: ->
-        halfHeight = pickerHeigth / 2
+        halfHeight = pickerHeight / 2
         top = halfHeight - @curIndex * @items[0].getHeight()
         @_setTop(top - @items[0].getHeight() / 2)
 
       _checkActive: =>
         itemHeight = @items[0].getHeight()
-        halfHeight = pickerHeigth / 2
+        halfHeight = pickerHeight / 2
         columnTop = @col.position().top
         dragItem = Math.floor (halfHeight - columnTop) / itemHeight
         if @curIndex isnt dragItem and dragItem < @items.length
           @_setActive dragItem
 
       _verifyPosition: (top, e)->
-        halfHeight = pickerHeigth / 2
+        halfHeight = pickerHeight / 2
         columnHeight = @col.height()
         clearShiftY = false
 
@@ -186,7 +186,7 @@ do ($ = jQuery, window = window) ->
     make = ()->
       $(this).addClass 'timePicker';
 
-      pickerHeigth = $(this).height()
+      pickerHeight = $(this).height()
 
       #create column
       $hours = new ColumnView
