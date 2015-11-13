@@ -110,7 +110,8 @@ console.log 'rdy'
           top: top
 
       _initEvents: ->
-        @$el.on 'mousewheel', @_onMouseWheel
+        #TODO _.throttle
+        @$el.on 'mousewheel', _.throttle @_onMouseWheel, 200
         @$el.on 'mousedown', @_onMouseDown
 
       _onMouseWheel: (e)=>
