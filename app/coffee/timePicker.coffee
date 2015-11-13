@@ -89,7 +89,7 @@ do ($ = jQuery, window = window) ->
 
       className: 'timePicker__col'
 
-      curIndex: null
+      curIndex: 0
 
       data: null
 
@@ -100,7 +100,6 @@ do ($ = jQuery, window = window) ->
         @_initEvents()
 
       init: ->
-        @_setActive 0
         @_scrollToActive()
 
       _createEl: ->
@@ -113,42 +112,40 @@ do ($ = jQuery, window = window) ->
         @data.each (item)=>
           @col.append item.getEl()
 
-      _findCurItem: ->
-        itemHeight = @items[0].getHeight()
-        halfHeight = pickerHeight / 2
-        columnTop = @col.position().top
-        shiftY = halfHeight - columnTop
-        console.log @curIndex = Math.floor shiftY / itemHeight
 
       _clearActive: ->
         @data.each (item)=>
           item.setInactive()
 
-      _setActive: (indx)=>
-        console.log 'depr'
-        return
-        @curIndex = indx || 0
-        @_clearActive()
-        @items[@curIndex].setActive()
 
       _scrollToActive: ->
         current = @data.current()
         halfHeight = pickerHeight / 2
         top = halfHeight - current.getEl().position().top
-        @_setTop(top - @data.current().getHeight() / 2)
+        #@_setTop(top - current.getHeight() / 2)
+        @_setTop top
 
-      _checkActive: =>
-        itemHeight = @items[0].getHeight()
+      _checkActive: ->
+        itemHeight = @data.current().getHeight()
         halfHeight = pickerHeight / 2
         columnTop = @col.position().top
-        dragItem = Math.floor (halfHeight - columnTop) / itemHeight
-        if @curIndex isnt dragItem and dragItem < @items.length
-          @_setActive dragItem
+        console.log dragItem = Math.floor (halfHeight - columnTop) / itemHeight
+        #FixMe: dragItem < 12
+        if @curIndex isnt dragItem and dragItem < 12
+          @curIndex = dragItem
+          if @direction < 0
+            @data.next()
+          else
+            @data.prev()
 
       _verifyPosition: (top, e)->
         halfHeight = pickerHeight / 2
         columnHeight = @col.height()
         clearShiftY = false
+
+        diff = e.pageY - @oldPosY
+        @oldPosY = e.pageY
+        @direction = if diff isnt 0 then diff / Math.abs(diff) else @direction
 
         unless columnHeight + top > halfHeight
           top = halfHeight
@@ -160,7 +157,8 @@ do ($ = jQuery, window = window) ->
 
         if clearShiftY and e then @shiftY = e.pageY - @col.position().top
 
-        @_setTop(top)
+        @_setTop top
+        @_checkActive()
 
       _setTop: (top)->
         @col.css
@@ -172,7 +170,6 @@ do ($ = jQuery, window = window) ->
         @$el.on 'mousedown', @_onMouseDown
 
       _onMouseWheel: (e)=>
-        tempIndex = @curIndex
         if e.deltaY < 0
           @data.next()
         else if e.deltaY > 0
@@ -180,12 +177,12 @@ do ($ = jQuery, window = window) ->
         @_scrollToActive()
 
       _onMouseDown: (e)=>
+        @oldPosY = e.pageY
         @shiftY = e.pageY - @col.position().top
 
         moveAt = (e)=>
           top = e.pageY - @shiftY
           @_verifyPosition(top, e)
-          @_checkActive()
 
         document.onmousemove = (e)->
           moveAt(e)
