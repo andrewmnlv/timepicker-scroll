@@ -1,6 +1,6 @@
 console.log 'rdy'
 
-(($, window) ->
+do ($ = jQuery, window = window) ->
   defaults =
     step: 5
 
@@ -48,12 +48,16 @@ console.log 'rdy'
             @_wind()
           @data[--@index]
         }
+
       _hasNext: ->
         @index < @length
+
       _hasPrev: ->
         @index > 0
+
       _wind: ->
         @index = @length
+
       _rewind: ->
         @index = 0
 
@@ -194,4 +198,4 @@ console.log 'rdy'
       $(this).append $('<div class="timePicker__center"></div>')
 
 
-    this.each make) jQuery, window
+    this.each make
