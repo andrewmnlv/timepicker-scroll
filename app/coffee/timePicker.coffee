@@ -27,27 +27,43 @@ do ($ = jQuery, window = window) ->
       getHeight: ->
         @getEl().height()
 
+
+    #TODO : refator class
     class Column
       data: null
       index: 0
       length: 0
-      constructor: (array)->
-        @data = array
-        @length = array.length
+      constructor: (array, current = 0)->
+        @_prepareItems array
+        @index = current
+        @data[current].setActive()
         return {
         rewind: =>
           @_rewind()
         current: =>
-          @data[++@index]
+          @data[@index]
         next: =>
           unless @_hasNext()
-            @_rewind()
-          @data[++@index]
+            return @_rewind()
+          @data[@index].setInactive()
+          @data[++@index].setActive()
+          @data[@index]
         prev: =>
           unless @_hasPrev()
-            @_wind()
-          @data[--@index]
+            return @_wind()
+          @data[@index].setInactive()
+          @data[--@index].setActive()
+          @data[@index]
+        each: (cb)=>
+          for item in @data
+            cb.call null, item
         }
+
+      _prepareItems: (array)->
+        @data = []
+        @length = array.length
+        for num in [0..@length]
+          @data.push new Item num, num
 
       _hasNext: ->
         @index < @length
@@ -56,10 +72,16 @@ do ($ = jQuery, window = window) ->
         @index > 0
 
       _wind: ->
+        @data[@index].setInactive()
         @index = @length
+        @data[@index].setActive()
+        @data[@index]
 
       _rewind: ->
+        @data[@index].setInactive()
         @index = 0
+        @data[@index].setActive()
+        @data[@index]
 
     class ColumnView
 
@@ -69,9 +91,11 @@ do ($ = jQuery, window = window) ->
 
       curIndex: null
 
+      data: null
+
       constructor: (options)->
         @options = $.extend {}, options
-        @items = []
+        @data = options.data
         @_createEl()
         @_initEvents()
 
@@ -86,10 +110,7 @@ do ($ = jQuery, window = window) ->
         @$el.append @col
 
       _drawItems: ->
-        @items = []
-        for num in [0..11]
-          item = new Item num, num
-          @items.push item
+        @data.each (item)=>
           @col.append item.getEl()
 
       _findCurItem: ->
@@ -100,18 +121,21 @@ do ($ = jQuery, window = window) ->
         console.log @curIndex = Math.floor shiftY / itemHeight
 
       _clearActive: ->
-        for item in @items
+        @data.each (item)=>
           item.setInactive()
 
       _setActive: (indx)=>
+        console.log 'depr'
+        return
         @curIndex = indx || 0
         @_clearActive()
         @items[@curIndex].setActive()
 
       _scrollToActive: ->
+        current = @data.current()
         halfHeight = pickerHeight / 2
-        top = halfHeight - @curIndex * @items[0].getHeight()
-        @_setTop(top - @items[0].getHeight() / 2)
+        top = halfHeight - current.getEl().position().top
+        @_setTop(top - @data.current().getHeight() / 2)
 
       _checkActive: =>
         itemHeight = @items[0].getHeight()
@@ -142,22 +166,17 @@ do ($ = jQuery, window = window) ->
         @col.css
           top: top
 
+#TODO : _.throttle
       _initEvents: ->
-#TODO _.throttle
         @$el.on 'mousewheel', _.throttle @_onMouseWheel, 200
         @$el.on 'mousedown', @_onMouseDown
 
       _onMouseWheel: (e)=>
         tempIndex = @curIndex
         if e.deltaY < 0
-          tempIndex++
+          @data.next()
         else if e.deltaY > 0
-          tempIndex--
-        if tempIndex < 0
-          tempIndex = @items.length - 1
-        unless tempIndex < @items.length
-          tempIndex = 0
-        @_setActive(tempIndex)
+          @data.prev()
         @_scrollToActive()
 
       _onMouseDown: (e)=>
@@ -188,9 +207,12 @@ do ($ = jQuery, window = window) ->
 
       pickerHeight = $(this).height()
 
+      hoursIterator = new Column([0..11])
+
       #create column
       $hours = new ColumnView
         className: 'timePicker__hours'
+        data: hoursIterator
 
       $(this).append $hours.getEl()
       $hours.init()
