@@ -64,7 +64,6 @@ do ($ = jQuery, window = window) ->
         @current().setInactive()
         @index = index
         @current().setActive()
-        @current()
 
       _prepareItems: (array)->
         @data = []
