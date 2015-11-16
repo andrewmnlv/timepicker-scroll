@@ -93,6 +93,8 @@ do ($ = jQuery, window = window) ->
 
       data: null
 
+      isDragNow: false
+
       constructor: (options)->
         @options = $.extend {}, options
         @data = options.data
@@ -131,7 +133,7 @@ do ($ = jQuery, window = window) ->
         columnTop = @col.position().top
         console.log dragItem = Math.floor (halfHeight - columnTop) / itemHeight
         #FixMe: dragItem < 12
-        if @curIndex isnt dragItem and dragItem < 12
+        if @curIndex isnt dragItem and dragItem <= 12
           @curIndex = dragItem
           if @direction < 0
             @data.next()
@@ -170,6 +172,8 @@ do ($ = jQuery, window = window) ->
         @$el.on 'mousedown', @_onMouseDown
 
       _onMouseWheel: (e)=>
+        if @isDragNow
+          return
         if e.deltaY < 0
           @data.next()
         else if e.deltaY > 0
@@ -177,6 +181,7 @@ do ($ = jQuery, window = window) ->
         @_scrollToActive()
 
       _onMouseDown: (e)=>
+        @isDragNow = true
         @oldPosY = e.pageY
         @shiftY = e.pageY - @col.position().top
 
@@ -191,6 +196,7 @@ do ($ = jQuery, window = window) ->
 
       _onMouseUp: (e)=>
         document.onmousemove = null
+        @isDragNow = false
         @_scrollToActive()
         $(window).off 'mouseup.timePicker'
 
