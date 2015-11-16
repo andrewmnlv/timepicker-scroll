@@ -39,6 +39,9 @@ do ($ = jQuery, window = window) ->
       rewind: ->
         @_rewind()
 
+      wind: ->
+        @_wind()
+
       current: ->
         @data[@index]
 
