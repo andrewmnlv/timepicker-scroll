@@ -69,7 +69,7 @@ do ($ = jQuery, window = window) ->
 
       _prepareItems: (array)->
         @data = []
-        for num in [0..array.length - 1]
+        for num in [0...array.length]
           @data.push new Item num, num
 
       _hasNext: ->
@@ -213,7 +213,7 @@ do ($ = jQuery, window = window) ->
 
       pickerHeight = $(this).height()
 
-      hoursIterator = new Column([0..11])
+      hoursIterator = new Column([0...12])
 
       #create column
       $hours = new ColumnView
