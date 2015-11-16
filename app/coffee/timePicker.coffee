@@ -135,8 +135,8 @@ do ($ = jQuery, window = window) ->
         current = @data.current()
         halfHeight = pickerHeight / 2
         top = halfHeight - current.getEl().position().top
-        @_setTop(top - current.getHeight() / 2)
-#@_setTop top
+        #@_setTop(top - current.getHeight() / 2)
+        @_setTop top
 
       _checkActive: ->
         itemHeight = @data.current().getHeight()
