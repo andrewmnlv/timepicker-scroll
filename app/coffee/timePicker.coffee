@@ -131,8 +131,8 @@ do ($ = jQuery, window = window) ->
         current = @data.current()
         halfHeight = pickerHeight / 2
         top = halfHeight - current.getEl().position().top
-        #@_setTop(top - current.getHeight() / 2)
-        @_setTop top
+        @_setTop(top - current.getHeight() / 2)
+        #@_setTop top
 
       _checkActive: ->
         itemHeight = @data.current().getHeight()
@@ -217,24 +217,40 @@ do ($ = jQuery, window = window) ->
       pickerHeight = $(this).height()
 
       hoursIterator = new Column([0...12])
-
       #create column
       $hours = new ColumnView
         className: 'timePicker__hours'
         data: hoursIterator
-
       $(this).append $hours.getEl()
       $hours.init()
 
-      minutesIterator = new Column((x for x in [0...60] by options.step || 5))
 
+      minutesIterator = new Column((x for x in [0...60] by options.step || 5))
       #create column
       $minutes = new ColumnView
         className: 'timePicker__minutes'
         data: minutesIterator
-
       $(this).append $minutes.getEl()
       $minutes.init()
+
+
+      amPmIterator = new Column ['am', 'pm']
+      #create column
+      $amPm = new ColumnView
+        className: 'timePicker__minutes'
+        data: amPmIterator
+      $(this).append $amPm.getEl()
+      $amPm.init()
+
+
+      tzIterator = new Column ['pst', 'mst', 'cst', 'est']
+      #create column
+      $tz = new ColumnView
+        className: 'timePicker__minutes'
+        data: tzIterator
+      $(this).append $tz.getEl()
+      $tz.init()
+
 
       $(this).append $('<div class="timePicker__center"></div>')
 

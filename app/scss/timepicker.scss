@@ -1,6 +1,6 @@
 .timePicker {
   border: 1px solid black;
-  width: 100px;
+  width: 150px;
   height: 200px;
   overflow: hidden;
   position: relative;
@@ -28,7 +28,7 @@
   &__col {
     border: 1px solid red;
     height: 100%;
-    width: 33%;
+    width: 25%;
     overflow: hidden;
     float: left;
     box-sizing: border-box;
@@ -40,7 +40,6 @@
     position: absolute;
     width: 100%;
     top: 50%;
-    border: 1px solid green;
     box-sizing: border-box;
   }
 
