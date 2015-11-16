@@ -31,7 +31,6 @@ do ($ = jQuery, window = window) ->
     class Column
       data: null
       index: 0
-      length: 0
 
       constructor: (array, current = 0)->
         @_prepareItems array
@@ -42,6 +41,9 @@ do ($ = jQuery, window = window) ->
 
       current: ->
         @data[@index]
+
+      length: ->
+        @data.length
 
       next: ->
         unless @_hasNext()
@@ -67,18 +69,17 @@ do ($ = jQuery, window = window) ->
 
       _prepareItems: (array)->
         @data = []
-        @length = array.length
-        for num in [0..@length]
+        for num in [0..array.length - 1]
           @data.push new Item num, num
 
       _hasNext: ->
-        @index < @length
+        @index < @length() - 1
 
       _hasPrev: ->
         @index > 0
 
       _wind: ->
-        @_setCurrent @length
+        @_setCurrent @length() - 1
         @current()
 
       _rewind: ->
@@ -135,8 +136,7 @@ do ($ = jQuery, window = window) ->
         halfHeight = pickerHeight / 2
         columnTop = @col.position().top
         dragItem = Math.floor (halfHeight - columnTop) / itemHeight
-        #FixMe: dragItem < 12
-        if @curIndex isnt dragItem and dragItem <= 12
+        if @curIndex isnt dragItem and dragItem < @data.length()
           @curIndex = dragItem
           if @direction < 0
             @data.next()
