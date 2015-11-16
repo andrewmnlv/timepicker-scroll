@@ -73,7 +73,7 @@ do ($ = jQuery, window = window) ->
       _prepareItems: (array)->
         @data = []
         for num in [0...array.length]
-          @data.push new Item num, num
+          @data.push new Item array[num], array[num]
 
       _hasNext: ->
         @index < @length() - 1
@@ -225,6 +225,16 @@ do ($ = jQuery, window = window) ->
 
       $(this).append $hours.getEl()
       $hours.init()
+
+      minutesIterator = new Column((x for x in [0...60] by options.step || 5))
+
+      #create column
+      $minutes = new ColumnView
+        className: 'timePicker__minutes'
+        data: minutesIterator
+
+      $(this).append $minutes.getEl()
+      $minutes.init()
 
       $(this).append $('<div class="timePicker__center"></div>')
 
