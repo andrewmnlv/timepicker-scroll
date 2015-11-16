@@ -12,8 +12,8 @@ do ($ = jQuery, window = window) ->
     class Item
       $el: null
       className: 'timePicker__item'
-      constructor: (value, text)->
-        @$el = $('<div></div>').addClass(@className).attr('value', value).text(text)
+      constructor: (@value = null, text)->
+        @$el = $('<div></div>').addClass(@className).attr('value', @value).text(text)
 
       getEl: ->
         @$el
@@ -26,6 +26,9 @@ do ($ = jQuery, window = window) ->
 
       getHeight: ->
         @getEl().height()
+
+      getValue: ->
+        @value
 
 
     class Column
@@ -69,6 +72,7 @@ do ($ = jQuery, window = window) ->
         @current().setInactive()
         @index = index
         @current().setActive()
+        $(window).trigger 'timePicker.change'
 
       _prepareItems: (array)->
         @data = []
@@ -132,7 +136,7 @@ do ($ = jQuery, window = window) ->
         halfHeight = pickerHeight / 2
         top = halfHeight - current.getEl().position().top
         @_setTop(top - current.getHeight() / 2)
-        #@_setTop top
+#@_setTop top
 
       _checkActive: ->
         itemHeight = @data.current().getHeight()
@@ -253,6 +257,18 @@ do ($ = jQuery, window = window) ->
 
 
       $(this).append $('<div class="timePicker__center"></div>')
+
+      getTime = ->
+        hour: hoursIterator.current().getValue()
+        minute: minutesIterator.current().getValue()
+        ampm: amPmIterator.current().getValue()
+        tz: tzIterator.current().getValue()
+
+
+      # TODO: window ?
+      $(window).on 'timePicker.change', ->
+        console.log 'timePicker.change'
+        console.log getTime()
 
 
     this.each make
