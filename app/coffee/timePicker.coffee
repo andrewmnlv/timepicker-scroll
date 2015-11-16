@@ -28,36 +28,43 @@ do ($ = jQuery, window = window) ->
         @getEl().height()
 
 
-    #TODO : refator class
     class Column
       data: null
       index: 0
       length: 0
+
       constructor: (array, current = 0)->
         @_prepareItems array
-        @index = current
-        @data[current].setActive()
-        return {
-        rewind: =>
-          @_rewind()
-        current: =>
-          @data[@index]
-        next: =>
-          unless @_hasNext()
-            return @_rewind()
-          @data[@index].setInactive()
-          @data[++@index].setActive()
-          @data[@index]
-        prev: =>
-          unless @_hasPrev()
-            return @_wind()
-          @data[@index].setInactive()
-          @data[--@index].setActive()
-          @data[@index]
-        each: (cb)=>
-          for item in @data
-            cb.call null, item
-        }
+        @_setCurrent current
+
+      rewind: ->
+        @_rewind()
+
+      current: ->
+        @data[@index]
+
+      next: ->
+        unless @_hasNext()
+          return @_rewind()
+        newIndex = @index + 1
+        @_setCurrent newIndex
+
+      prev: ->
+        unless @_hasPrev()
+          return @_wind()
+        newIndex = @index - 1
+        @_setCurrent newIndex
+
+
+      each: (cb)->
+        for item in @data
+          cb.call null, item
+
+      _setCurrent: (index)->
+        @current().setInactive()
+        @index = index
+        @current().setActive()
+        @current()
 
       _prepareItems: (array)->
         @data = []
@@ -72,16 +79,13 @@ do ($ = jQuery, window = window) ->
         @index > 0
 
       _wind: ->
-        @data[@index].setInactive()
-        @index = @length
-        @data[@index].setActive()
-        @data[@index]
+        @_setCurrent @length
+        @current()
 
       _rewind: ->
-        @data[@index].setInactive()
-        @index = 0
-        @data[@index].setActive()
-        @data[@index]
+        @_setCurrent 0
+        @current()
+
 
     class ColumnView
 
@@ -131,7 +135,7 @@ do ($ = jQuery, window = window) ->
         itemHeight = @data.current().getHeight()
         halfHeight = pickerHeight / 2
         columnTop = @col.position().top
-        console.log dragItem = Math.floor (halfHeight - columnTop) / itemHeight
+        dragItem = Math.floor (halfHeight - columnTop) / itemHeight
         #FixMe: dragItem < 12
         if @curIndex isnt dragItem and dragItem <= 12
           @curIndex = dragItem
