@@ -240,6 +240,8 @@ do ($ = jQuery, window = window) ->
       if options.tz
         zoneStart = zones.indexOf options.tz
 
+      if options.minTime
+        console.log options.minTime
 
       pickerHeight = $(this).height()
 
