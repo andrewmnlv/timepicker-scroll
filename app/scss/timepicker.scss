@@ -12,6 +12,7 @@
     width: 100%;
     left: 0;
     right: 0;
+    //border: 1px dotted gray;
     &::before, &::after {
       content: "";
       position: absolute;
@@ -35,22 +36,16 @@
     position: relative;
   }
 
-  &__hours {
-    //margin-top: -12px;
+  &__hours, &__minutes {
     position: absolute;
     width: 100%;
     top: 50%;
     box-sizing: border-box;
   }
 
-  &__minutes {
-    position: absolute;
-    width: 100%;
-    top: 50%;
-  }
-
   &__item {
     text-align: center;
+    box-sizing: border-box;
     height: 24px;
     line-height: 24px;
     &--active {

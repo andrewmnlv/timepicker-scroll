@@ -25,7 +25,7 @@ do ($ = jQuery, window = window) ->
         @getEl().addClass("#{@className}--active")
 
       getHeight: ->
-        @getEl().height()
+        @getEl().outerHeight()
 
       getValue: ->
         @value
@@ -48,6 +48,9 @@ do ($ = jQuery, window = window) ->
       current: ->
         @data[@index]
 
+      getIndex: ->
+        @index
+
       length: ->
         @data.length
 
@@ -67,6 +70,9 @@ do ($ = jQuery, window = window) ->
       each: (cb)->
         for item in @data
           cb.call null, item
+
+      setCurrent: (index)->
+        @_setCurrent(index)
 
       _setCurrent: (index)->
         @current().setInactive()
@@ -99,8 +105,6 @@ do ($ = jQuery, window = window) ->
       $el: null
 
       className: 'timePicker__col'
-
-      curIndex: 0
 
       data: null
 
@@ -135,36 +139,31 @@ do ($ = jQuery, window = window) ->
         current = @data.current()
         halfHeight = pickerHeight / 2
         top = halfHeight - current.getEl().position().top
-        #@_setTop(top - current.getHeight() / 2)
-        @_setTop top
+        @_setTop(top - current.getHeight() / 2)
+        #@_setTop top
 
       _checkActive: ->
         itemHeight = @data.current().getHeight()
         halfHeight = pickerHeight / 2
         columnTop = @col.position().top
         dragItem = Math.floor (halfHeight - columnTop) / itemHeight
-        if @curIndex isnt dragItem and dragItem < @data.length()
-          @curIndex = dragItem
-          if @direction < 0
-            @data.next()
-          else
-            @data.prev()
+        if @data.getIndex() isnt dragItem and dragItem < @data.length()
+          @data.setCurrent dragItem
+
 
       _verifyPosition: (top, e)->
         halfHeight = pickerHeight / 2
-        columnHeight = @col.height()
+        columnHeight = @col.outerHeight()
         clearShiftY = false
 
-        diff = e.pageY - @oldPosY
         @oldPosY = e.pageY
-        @direction = if diff isnt 0 then diff / Math.abs(diff) else @direction
 
         unless columnHeight + top > halfHeight
-          top = halfHeight
+          top = halfHeight - 5
           clearShiftY = true
 
         if top > halfHeight
-          top = halfHeight - columnHeight
+          top = halfHeight - columnHeight + 5
           clearShiftY = true
 
         if clearShiftY and e then @shiftY = e.pageY - @col.position().top
