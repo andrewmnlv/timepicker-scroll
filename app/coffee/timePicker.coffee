@@ -35,8 +35,8 @@ do ($ = jQuery, window = window) ->
       data: null
       index: 0
 
-      constructor: (array, current = 0)->
-        @_prepareItems array
+      constructor: (array, current = 0, type = null)->
+        @_prepareItems array, type
         @_setCurrent current
 
       rewind: ->
@@ -80,10 +80,15 @@ do ($ = jQuery, window = window) ->
         @current().setActive()
         $(window).trigger 'timePicker.change'
 
-      _prepareItems: (array)->
+      _prepareItems: (array, type)->
         @data = []
         for num in [0...array.length]
-          @data.push new Item array[num], array[num]
+          text = array[num]
+          if num is 0
+            switch type
+              when 'hour' then text = 12
+              when 'minute' then text = '00'
+          @data.push new Item array[num], text
 
       _hasNext: ->
         @index < @length() - 1
@@ -140,7 +145,7 @@ do ($ = jQuery, window = window) ->
         halfHeight = pickerHeight / 2
         top = halfHeight - current.getEl().position().top
         @_setTop(top - current.getHeight() / 2)
-        #@_setTop top
+#@_setTop top
 
       _checkActive: ->
         itemHeight = @data.current().getHeight()
@@ -217,9 +222,28 @@ do ($ = jQuery, window = window) ->
     make = ()->
       $(this).addClass 'timePicker';
 
+      hourStart = 0
+      minuteStart = 0
+      amPmStart = 0
+      zones = ['pst', 'mst', 'cst', 'est']
+      zoneStart = 0
+      step = options.step || 5
+
+
+      if options.defaultTime
+        defaultTime = options.defaultTime.split ':'
+        hourStart = defaultTime[0]
+        if hourStart > 11
+          amPmStart = 1
+          hourStart = hourStart % 12
+        minuteStart = Math.ceil defaultTime[1] / step
+      if options.tz
+        zoneStart = zones.indexOf options.tz
+
+
       pickerHeight = $(this).height()
 
-      hoursIterator = new Column([0...12])
+      hoursIterator = new Column([0...12], hourStart, 'hour')
       #create column
       $hours = new ColumnView
         className: 'timePicker__hours'
@@ -228,7 +252,7 @@ do ($ = jQuery, window = window) ->
       $hours.init()
 
 
-      minutesIterator = new Column((x for x in [0...60] by options.step || 5))
+      minutesIterator = new Column((x for x in [0...60] by step), minuteStart, 'minute')
       #create column
       $minutes = new ColumnView
         className: 'timePicker__minutes'
@@ -237,7 +261,7 @@ do ($ = jQuery, window = window) ->
       $minutes.init()
 
 
-      amPmIterator = new Column ['am', 'pm']
+      amPmIterator = new Column ['am', 'pm'], amPmStart
       #create column
       $amPm = new ColumnView
         className: 'timePicker__minutes'
@@ -246,7 +270,8 @@ do ($ = jQuery, window = window) ->
       $amPm.init()
 
 
-      tzIterator = new Column ['pst', 'mst', 'cst', 'est']
+      zones = ['pst', 'mst', 'cst', 'est']
+      tzIterator = new Column zones, zoneStart
       #create column
       $tz = new ColumnView
         className: 'timePicker__minutes'
