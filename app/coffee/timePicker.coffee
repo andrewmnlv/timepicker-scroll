@@ -92,7 +92,7 @@ do ($ = jQuery, window = window) ->
             switch type
               when 'hour' then text = 12
               when 'minute' then text = '00'
-          @data.push new Item num, text, num.disabled
+          @data.push new Item num.value, text, num.disabled
 
       _hasNext: ->
         @index < @length() - 1 and (@data[@index + 1] and not @data[@index + 1]?.disabled)
@@ -330,7 +330,7 @@ do ($ = jQuery, window = window) ->
       # TODO: window ?
       $(window).on 'timePicker.change', ->
         console.log 'timePicker.change'
-    #console.log getTime()
+        #console.log getTime()
 
 
     this.each make
