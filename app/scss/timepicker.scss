@@ -52,6 +52,9 @@
       font-weight: bold;
       color: red
     }
+    &--disabled{
+      opacity: 0.5;
+    }
   }
 
 }

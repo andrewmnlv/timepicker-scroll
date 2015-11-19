@@ -12,8 +12,10 @@ do ($ = jQuery, window = window) ->
     class Item
       $el: null
       className: 'timePicker__item'
-      constructor: (@value = null, text)->
+      constructor: (@value = null, text, @disabled = false)->
         @$el = $('<div></div>').addClass(@className).attr('value', @value).text(text)
+        if @disabled
+          @$el.addClass("#{@className}--disabled")
 
       getEl: ->
         @$el
@@ -35,8 +37,8 @@ do ($ = jQuery, window = window) ->
       data: null
       index: 0
 
-      constructor: (array, current = 0, type = null)->
-        @_prepareItems array, type
+      constructor: (data, current = 0, @type = null)->
+        @_prepareItems data
         @_setCurrent current
 
       rewind: ->
@@ -75,6 +77,8 @@ do ($ = jQuery, window = window) ->
         @_setCurrent(index)
 
       _setCurrent: (index)->
+        if @data[index].disabled
+          return
         @current().setInactive()
         @index = index
         @current().setActive()
@@ -82,26 +86,33 @@ do ($ = jQuery, window = window) ->
 
       _prepareItems: (array, type)->
         @data = []
-        for num in [0...array.length]
-          text = array[num]
-          if num is 0
+        for num in array
+          text = num.value
+          if text is 0
             switch type
               when 'hour' then text = 12
               when 'minute' then text = '00'
-          @data.push new Item array[num], text
+          @data.push new Item num, text, num.disabled
 
       _hasNext: ->
-        @index < @length() - 1
+        @index < @length() - 1 and (@data[@index + 1] and not @data[@index + 1]?.disabled)
 
       _hasPrev: ->
-        @index > 0
+        @index > 0 and not @data[@index - 1].disabled
 
       _wind: ->
         @_setCurrent @length() - 1
         @current()
 
       _rewind: ->
-        @_setCurrent 0
+        index = null
+        for it, idx in @data
+          unless it.disabled
+            index = idx
+            break
+
+        if index isnt null
+          @_setCurrent index
         @current()
 
 
@@ -245,7 +256,14 @@ do ($ = jQuery, window = window) ->
 
       pickerHeight = $(this).height()
 
-      hoursIterator = new Column([0...12], hourStart, 'hour')
+      hourArr = []
+      for h in [0...12]
+        hourArr.push
+          value: h
+#disabled: false
+          disabled: h < 5
+
+      hoursIterator = new Column(hourArr, hourStart, 'hour')
       #create column
       $hours = new ColumnView
         className: 'timePicker__hours'
@@ -254,7 +272,14 @@ do ($ = jQuery, window = window) ->
       $hours.init()
 
 
-      minutesIterator = new Column((x for x in [0...60] by step), minuteStart, 'minute')
+      minutesArr = []
+      for m in [0...60] by step
+        minutesArr.push
+          value: m
+#disabled: false
+          disabled: m < 30
+
+      minutesIterator = new Column(minutesArr, minuteStart, 'minute')
       #create column
       $minutes = new ColumnView
         className: 'timePicker__minutes'
@@ -263,7 +288,13 @@ do ($ = jQuery, window = window) ->
       $minutes.init()
 
 
-      amPmIterator = new Column ['am', 'pm'], amPmStart
+      amPmArr = []
+      for m in ['am', 'pm']
+        amPmArr.push
+          value: m
+          disabled: false
+
+      amPmIterator = new Column amPmArr, amPmStart
       #create column
       $amPm = new ColumnView
         className: 'timePicker__minutes'
@@ -272,8 +303,13 @@ do ($ = jQuery, window = window) ->
       $amPm.init()
 
 
-      zones = ['pst', 'mst', 'cst', 'est']
-      tzIterator = new Column zones, zoneStart
+      zonesArr = []
+      for m in ['pst', 'mst', 'cst', 'est']
+        zonesArr.push
+          value: m
+          disabled: false
+
+      tzIterator = new Column zonesArr, zoneStart
       #create column
       $tz = new ColumnView
         className: 'timePicker__minutes'
@@ -294,7 +330,7 @@ do ($ = jQuery, window = window) ->
       # TODO: window ?
       $(window).on 'timePicker.change', ->
         console.log 'timePicker.change'
-        console.log getTime()
+    #console.log getTime()
 
 
     this.each make
