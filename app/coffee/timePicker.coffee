@@ -63,8 +63,8 @@ do ($ = jQuery, window = window) ->
         @index
 
       setMin: (min)->
-        @each (item)->
-          if item.getValue() < min
+        @each (item, index)->
+          if index < min
             item.disable()
           else
             item.enable()
@@ -86,8 +86,8 @@ do ($ = jQuery, window = window) ->
 
 
       each: (cb)->
-        for item in @data
-          cb.call null, item
+        for item, index in @data
+          cb.call null, item, index
 
       setCurrent: (index)->
         @_setCurrent(index)
@@ -247,6 +247,7 @@ do ($ = jQuery, window = window) ->
         @$el.addClass('timePicker').append $('<div class="timePicker__center"></div>')
         pickerHeight = @$el.height()
         @_createColumns()
+        @setMinTime()
 
       _createColumns: ->
         hourStart = 0
@@ -254,25 +255,25 @@ do ($ = jQuery, window = window) ->
         amPmStart = 0
 
         if options.defaultTime
-          defaultTime = options.defaultTime.split ':'
-          hourStart = defaultTime[0]
+          [hourStart, minuteStart] = options.defaultTime.split ':'
           if hourStart > 11
             amPmStart = 1
             hourStart = hourStart % 12
-          minuteStart = Math.ceil defaultTime[1] / options.step
+          minuteStart = Math.ceil minuteStart / options.step
+
+        new ColumnView
+          data: @amPmIterator = new Iterator ['am', 'pm'], amPmStart
+          parent: @$el
 
         new ColumnView
           data: @hoursIterator = new Iterator([0...12], hourStart, 'hour')
           parent: @$el
-        @hoursIterator.setMin(2)
+
 
         new ColumnView
           data: @minutesIterator = new Iterator((m for m in [0...60] by options.step), minuteStart, 'minute')
           parent: @$el
 
-        new ColumnView
-          data: @amPmIterator = new Iterator ['am', 'pm'], amPmStart
-          parent: @$el
 
         #TODO: move to plugin
         zones = ['pst', 'mst', 'cst', 'est']
@@ -286,6 +287,33 @@ do ($ = jQuery, window = window) ->
         ampm: @amPmIterator.current().getValue()
         tz: @zonesIterator.current().getValue()
 
+      setMinTime: ->
+        unless options.minTime
+          return
+        ampm = 0
+        [h,m] = options.minTime.split ':'
+        if h > 11
+          ampm = 1
+          h %= 12
+        m = Math.ceil m / options.step
+
+        if ampm is 1
+          @amPmIterator.setMin(1)
+
+        if @amPmIterator.current().getValue() is 'pm' and ampm is 0
+          console.log 'do nothing'
+        else
+          @hoursIterator.setMin(h)
+          if @hoursIterator.current().getValue() is h
+            @minutesIterator.setMin(m)
+          else
+            @minutesIterator.setMin(0)
+
+        if @amPmIterator.current().getValue() is 'am' and ampm is 1
+          console.log 'disable all'
+          @hoursIterator.setMin(12)
+          @minutesIterator.setMin(60)
+
 
     make = ()->
       picker = new Picker $(this)
@@ -294,7 +322,8 @@ do ($ = jQuery, window = window) ->
       # TODO: window ?
       $(window).on 'timePicker.change', ->
         console.log 'timePicker.change'
-        console.log picker.getTime()
+        #console.log picker.getTime()
+        picker.setMinTime()
 
 
     this.each make
