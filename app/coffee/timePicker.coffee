@@ -9,21 +9,30 @@ do ($ = jQuery, window = window) ->
 
     pickerHeight = 0
 
+
     class Item
       $el: null
       className: 'timePicker__item'
-      constructor: (@value = null, text, @disabled = false)->
+      disabled: false
+      constructor: (@value = null, text)->
         @$el = $('<div></div>').addClass(@className).attr('value', @value).text(text)
-        if @disabled
-          @$el.addClass("#{@className}--disabled")
+
 
       getEl: ->
         @$el
 
-      setInactive: ->
+      disable: ->
+        @disabled = true
+        @$el.addClass("#{@className}--disabled")
+
+      enable: ->
+        @disabled = false
+        @$el.removeClass("#{@className}--disabled")
+
+      unmark: ->
         @getEl().removeClass("#{@className}--active")
 
-      setActive: ->
+      mark: ->
         @getEl().addClass("#{@className}--active")
 
       getHeight: ->
@@ -33,7 +42,7 @@ do ($ = jQuery, window = window) ->
         @value
 
 
-    class Column
+    class Iterator
       data: null
       index: 0
 
@@ -52,6 +61,13 @@ do ($ = jQuery, window = window) ->
 
       getIndex: ->
         @index
+
+      setMin: (min)->
+        @each (item)->
+          if item.getValue() < min
+            item.disable()
+          else
+            item.enable()
 
       length: ->
         @data.length
@@ -79,20 +95,20 @@ do ($ = jQuery, window = window) ->
       _setCurrent: (index)->
         if @data[index].disabled
           return
-        @current().setInactive()
+        @current().unmark()
         @index = index
-        @current().setActive()
+        @current().mark()
         $(window).trigger 'timePicker.change'
 
       _prepareItems: (array, type)->
         @data = []
         for num in array
-          text = num.value
+          text = num
           if text is 0
             switch type
               when 'hour' then text = 12
               when 'minute' then text = '00'
-          @data.push new Item num.value, text, num.disabled
+          @data.push new Item num, text
 
       _hasNext: ->
         @index < @length() - 1 and (@data[@index + 1] and not @data[@index + 1]?.disabled)
@@ -131,24 +147,19 @@ do ($ = jQuery, window = window) ->
         @data = options.data
         @_createEl()
         @_initEvents()
-
-      init: ->
-        @_scrollToActive()
+        if @options.parent
+          @getEl().appendTo @options.parent
+          @_scrollToActive()
 
       _createEl: ->
         @$el = $('<div></div>').addClass @className
-        @col = $('<div></div>').addClass @options.className
+        @col = $('<div></div>').addClass 'timePicker__items'
         @_drawItems()
         @$el.append @col
 
       _drawItems: ->
         @data.each (item)=>
           @col.append item.getEl()
-
-
-      _clearActive: ->
-        @data.each (item)=>
-          item.setInactive()
 
 
       _scrollToActive: ->
@@ -230,16 +241,47 @@ do ($ = jQuery, window = window) ->
         @$el
 
 
+    class Picker
+      $el: null
+      constructor: (@$el)->
+        @$el.addClass('timePicker').append $('<div class="timePicker__center"></div>')
+        pickerHeight = @$el.height()
+        @_createColumns()
+
+      _createColumns: ->
+        hoursIterator = new Iterator([0...12], 6, 'hour')
+        new ColumnView
+          data: hoursIterator
+          parent: @$el
+        hoursIterator.setMin(2)
+
+
+        minutesIterator = new Iterator((m for m in [0...60] by options.step), (Math.ceil 35 / options.step), 'minute')
+        new ColumnView
+          data: minutesIterator
+          parent: @$el
+
+        amPmIterator = new Iterator ['am', 'pm']
+        new ColumnView
+          data: amPmIterator
+          parent: @$el
+
+        #TODO: move to plugin
+        zonesIterator = new Iterator ['pst', 'mst', 'cst', 'est']
+        new ColumnView
+          data: zonesIterator
+          parent: @$el
+
+
     make = ()->
-      $(this).addClass 'timePicker';
+      new Picker $(this)
+      ###
 
       hourStart = 0
       minuteStart = 0
       amPmStart = 0
       zones = ['pst', 'mst', 'cst', 'est']
       zoneStart = 0
-      step = options.step || 5
-
 
       if options.defaultTime
         defaultTime = options.defaultTime.split ':'
@@ -254,71 +296,7 @@ do ($ = jQuery, window = window) ->
       if options.minTime
         console.log options.minTime
 
-      pickerHeight = $(this).height()
-
-      hourArr = []
-      for h in [0...12]
-        hourArr.push
-          value: h
-#disabled: false
-          disabled: h < 5
-
-      hoursIterator = new Column(hourArr, hourStart, 'hour')
-      #create column
-      $hours = new ColumnView
-        className: 'timePicker__hours'
-        data: hoursIterator
-      $(this).append $hours.getEl()
-      $hours.init()
-
-
-      minutesArr = []
-      for m in [0...60] by step
-        minutesArr.push
-          value: m
-#disabled: false
-          disabled: m < 30
-
-      minutesIterator = new Column(minutesArr, minuteStart, 'minute')
-      #create column
-      $minutes = new ColumnView
-        className: 'timePicker__minutes'
-        data: minutesIterator
-      $(this).append $minutes.getEl()
-      $minutes.init()
-
-
-      amPmArr = []
-      for m in ['am', 'pm']
-        amPmArr.push
-          value: m
-          disabled: false
-
-      amPmIterator = new Column amPmArr, amPmStart
-      #create column
-      $amPm = new ColumnView
-        className: 'timePicker__minutes'
-        data: amPmIterator
-      $(this).append $amPm.getEl()
-      $amPm.init()
-
-
-      zonesArr = []
-      for m in ['pst', 'mst', 'cst', 'est']
-        zonesArr.push
-          value: m
-          disabled: false
-
-      tzIterator = new Column zonesArr, zoneStart
-      #create column
-      $tz = new ColumnView
-        className: 'timePicker__minutes'
-        data: tzIterator
-      $(this).append $tz.getEl()
-      $tz.init()
-
-
-      $(this).append $('<div class="timePicker__center"></div>')
+      ###
 
       getTime = ->
         hour: hoursIterator.current().getValue()
@@ -330,7 +308,7 @@ do ($ = jQuery, window = window) ->
       # TODO: window ?
       $(window).on 'timePicker.change', ->
         console.log 'timePicker.change'
-        #console.log getTime()
+    #console.log getTime()
 
 
     this.each make
