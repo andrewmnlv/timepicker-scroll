@@ -249,25 +249,39 @@ do ($ = jQuery, window = window) ->
         @_createColumns()
 
       _createColumns: ->
-        hoursIterator = new Iterator([0...12], 6, 'hour')
+
+        hourStart = 0
+        minuteStart = 0
+        amPmStart = 0
+
+        if options.defaultTime
+          defaultTime = options.defaultTime.split ':'
+          hourStart = defaultTime[0]
+          if hourStart > 11
+            amPmStart = 1
+            hourStart = hourStart % 12
+          minuteStart = Math.ceil defaultTime[1] / options.step
+
+        hoursIterator = new Iterator([0...12], hourStart, 'hour')
         new ColumnView
           data: hoursIterator
           parent: @$el
         hoursIterator.setMin(2)
 
 
-        minutesIterator = new Iterator((m for m in [0...60] by options.step), (Math.ceil 35 / options.step), 'minute')
+        minutesIterator = new Iterator((m for m in [0...60] by options.step), minuteStart, 'minute')
         new ColumnView
           data: minutesIterator
           parent: @$el
 
-        amPmIterator = new Iterator ['am', 'pm']
+        amPmIterator = new Iterator ['am', 'pm'], amPmStart
         new ColumnView
           data: amPmIterator
           parent: @$el
 
         #TODO: move to plugin
-        zonesIterator = new Iterator ['pst', 'mst', 'cst', 'est']
+        zones = ['pst', 'mst', 'cst', 'est']
+        zonesIterator = new Iterator zones
         new ColumnView
           data: zonesIterator
           parent: @$el
@@ -275,28 +289,6 @@ do ($ = jQuery, window = window) ->
 
     make = ()->
       new Picker $(this)
-      ###
-
-      hourStart = 0
-      minuteStart = 0
-      amPmStart = 0
-      zones = ['pst', 'mst', 'cst', 'est']
-      zoneStart = 0
-
-      if options.defaultTime
-        defaultTime = options.defaultTime.split ':'
-        hourStart = defaultTime[0]
-        if hourStart > 11
-          amPmStart = 1
-          hourStart = hourStart % 12
-        minuteStart = Math.ceil defaultTime[1] / step
-      if options.tz
-        zoneStart = zones.indexOf options.tz
-
-      if options.minTime
-        console.log options.minTime
-
-      ###
 
       getTime = ->
         hour: hoursIterator.current().getValue()
