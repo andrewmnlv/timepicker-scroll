@@ -5,13 +5,15 @@ sass = require 'gulp-sass'
 autoprefixer = require 'gulp-autoprefixer'
 browserSync = require('browser-sync').create()
 sourcemaps = require 'gulp-sourcemaps'
+preprocess = require 'gulp-preprocess'
 
 gulp.task 'default', ['serve'], ->
   console.log 'gulp default'
 
 gulp.task 'coffee', ->
-  gulp.src './app/coffee/**/*.coffee'
+  gulp.src './app/coffee/timePicker.coffee'
   .pipe sourcemaps.init()
+  .pipe preprocess()
   .pipe coffee()
     .on 'error', gutil.log
   .pipe sourcemaps.write()
