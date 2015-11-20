@@ -249,7 +249,6 @@ do ($ = jQuery, window = window) ->
         @_createColumns()
 
       _createColumns: ->
-
         hourStart = 0
         minuteStart = 0
         amPmStart = 0
@@ -262,45 +261,40 @@ do ($ = jQuery, window = window) ->
             hourStart = hourStart % 12
           minuteStart = Math.ceil defaultTime[1] / options.step
 
-        hoursIterator = new Iterator([0...12], hourStart, 'hour')
         new ColumnView
-          data: hoursIterator
+          data: @hoursIterator = new Iterator([0...12], hourStart, 'hour')
           parent: @$el
-        hoursIterator.setMin(2)
+        @hoursIterator.setMin(2)
 
-
-        minutesIterator = new Iterator((m for m in [0...60] by options.step), minuteStart, 'minute')
         new ColumnView
-          data: minutesIterator
+          data: @minutesIterator = new Iterator((m for m in [0...60] by options.step), minuteStart, 'minute')
           parent: @$el
 
-        amPmIterator = new Iterator ['am', 'pm'], amPmStart
         new ColumnView
-          data: amPmIterator
+          data: @amPmIterator = new Iterator ['am', 'pm'], amPmStart
           parent: @$el
 
         #TODO: move to plugin
         zones = ['pst', 'mst', 'cst', 'est']
-        zonesIterator = new Iterator zones
         new ColumnView
-          data: zonesIterator
+          data: @zonesIterator = new Iterator zones
           parent: @$el
+
+      getTime: ->
+        hour: @hoursIterator.current().getValue()
+        minute: @minutesIterator.current().getValue()
+        ampm: @amPmIterator.current().getValue()
+        tz: @zonesIterator.current().getValue()
 
 
     make = ()->
-      new Picker $(this)
-
-      getTime = ->
-        hour: hoursIterator.current().getValue()
-        minute: minutesIterator.current().getValue()
-        ampm: amPmIterator.current().getValue()
-        tz: tzIterator.current().getValue()
+      picker = new Picker $(this)
 
 
       # TODO: window ?
       $(window).on 'timePicker.change', ->
         console.log 'timePicker.change'
-    #console.log getTime()
+        console.log picker.getTime()
 
 
     this.each make
