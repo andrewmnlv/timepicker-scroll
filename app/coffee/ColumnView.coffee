@@ -19,11 +19,13 @@ class ColumnView
     else
       throw new Error "Specify parent element"
 
+
   _createEl: ->
     @$el = $('<div></div>').addClass @className
     @col = $('<div></div>').addClass 'timePicker__items'
     @_drawItems()
     @$el.append @col
+
 
   _drawItems: ->
     @data.each (item)=>
@@ -35,7 +37,7 @@ class ColumnView
     halfHeight = @options.parent.height() / 2
     top = halfHeight - current.getEl().position().top
     @_setTop(top - current.getHeight() / 2)
-#@_setTop top
+
 
   _checkActive: ->
     itemHeight = @data.current().getHeight()
@@ -46,36 +48,45 @@ class ColumnView
       @data.setCurrent dragItem
 
 
-  _verifyPosition: (top, e)->
+  _verifyPosition: (top, e, isTouch = false)->
     halfHeight = @options.parent.height() / 2
     columnHeight = @col.outerHeight()
     clearShiftY = false
 
-    @oldPosY = e.pageY
-
     unless columnHeight + top > halfHeight
-      top = halfHeight - 5
+      top = halfHeight - 10
       clearShiftY = true
 
     if top > halfHeight
-      top = halfHeight - columnHeight + 5
+      top = halfHeight - columnHeight + 10
       clearShiftY = true
 
-    if clearShiftY and e then @shiftY = e.pageY - @col.position().top
+    if isTouch
+      touch = e.originalEvent.touches[0]
+      @oldPosY = touch.pageY
+      if clearShiftY and e then @shiftY = touch.pageY - @col.position().top
+    else
+      @oldPosY = e.pageY
+      if clearShiftY and e then @shiftY = e.pageY - @col.position().top
 
     @_setTop top
     @_checkActive()
+
 
   _setTop: (top)->
     @col.css
       top: top
 
+
 #TODO : _.throttle
   _initEvents: ->
     @$el.on 'mousewheel', _.throttle @_onMouseWheel, 200
     @$el.on 'mousedown', @_onMouseDown
+    @$el.on 'touchstart', @_onTouchStart
+
 
   _onMouseWheel: (e)=>
+    e.preventDefault()
     if @isDragNow
       return
     if e.deltaY < 0
@@ -83,6 +94,27 @@ class ColumnView
     else if e.deltaY > 0
       @data.prev()
     @_scrollToActive()
+    return false
+
+
+  _onTouchStart: (e)=>
+    @isDragNow = true
+    touch = e.originalEvent.touches[0]
+    @oldPosY = touch.pageY
+    @shiftY = touch.pageY - @col.position().top
+
+    moveAt = (e)=>
+      touch = e.originalEvent.touches[0]
+      top = touch.pageY - @shiftY
+      @_verifyPosition(top, e, true)
+
+    $(window).on 'touchmove.timePicker', (e)->
+      e.preventDefault()
+      moveAt(e)
+      return false
+
+    $(window).on 'touchend.timePicker', @_onMouseUp
+
 
   _onMouseDown: (e)=>
     @isDragNow = true
@@ -98,11 +130,12 @@ class ColumnView
 
     $(window).on 'mouseup.timePicker', @_onMouseUp
 
+
   _onMouseUp: (e)=>
     document.onmousemove = null
     @isDragNow = false
     @_scrollToActive()
-    $(window).off 'mouseup.timePicker'
+    $(window).off 'mouseup.timePicker, touchend.timePicker, touchmove.timePicker'
 
 
   getEl: ->
