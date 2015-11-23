@@ -52,7 +52,13 @@ class Picker
     ampm: @amPmIterator.current().getValue()
     tz: @zonesIterator.current().getValue()
 
-  _setMinTime: (init = false)->
+  setMinTime: (minTime)->
+    @_setMinTime false, minTime
+
+
+  _setMinTime: (init = false, minTime)->
+    if minTime isnt undefined
+      @options.minTime = minTime
     unless @options.minTime
       return
     ampm = 0
@@ -60,10 +66,10 @@ class Picker
     if h > 11
       ampm = 1
       h %= 12
+    h =  parseInt h
     m = Math.ceil m / @options.step
 
-    if ampm is 1
-      @amPmIterator.setMin(1)
+    @amPmIterator.setMin(ampm)
 
     if @amPmIterator.current().getValue() is 'pm' and ampm is 0
       console.log 'do nothing'

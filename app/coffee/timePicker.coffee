@@ -13,7 +13,4 @@ do ($ = jQuery) ->
 
     # @include Picker.coffee
 
-    make = ()->
-      new Picker $(this), options
-
-    this.each make
+    new Picker $(this).eq(0), options
