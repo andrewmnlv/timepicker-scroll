@@ -1,22 +1,27 @@
 class Picker
   $el: null
-  constructor: (@$el)->
+  constructor: (@$el, @options)->
     @$el.addClass('timePicker').append $('<div class="timePicker__center"></div>')
-    pickerHeight = @$el.height()
     @_createColumns()
-    @setMinTime()
+    @_setMinTime(true)
+
+    # TODO: window ?
+    $(window).on 'timePicker.change', =>
+      console.log 'timePicker.change'
+      #console.log @.getTime()
+      @_setMinTime()
 
   _createColumns: ->
     hourStart = 0
     minuteStart = 0
     amPmStart = 0
 
-    if options.defaultTime
-      [hourStart, minuteStart] = options.defaultTime.split ':'
+    if @options.defaultTime
+      [hourStart, minuteStart] = @options.defaultTime.split ':'
       if hourStart > 11
         amPmStart = 1
         hourStart = hourStart % 12
-      minuteStart = Math.ceil minuteStart / options.step
+      minuteStart = Math.ceil minuteStart / @options.step
 
     new ColumnView
       data: @amPmIterator = new Iterator ['am', 'pm'], amPmStart
@@ -28,7 +33,7 @@ class Picker
 
 
     new ColumnView
-      data: @minutesIterator = new Iterator((m for m in [0...60] by options.step), minuteStart, 'minute')
+      data: @minutesIterator = new Iterator((m for m in [0...60] by @options.step), minuteStart, 'minute')
       parent: @$el
 
 
@@ -44,15 +49,15 @@ class Picker
     ampm: @amPmIterator.current().getValue()
     tz: @zonesIterator.current().getValue()
 
-  setMinTime: ->
-    unless options.minTime
+  _setMinTime: (init = false)->
+    unless @options.minTime
       return
     ampm = 0
-    [h,m] = options.minTime.split ':'
+    [h,m] = @options.minTime.split ':'
     if h > 11
       ampm = 1
       h %= 12
-    m = Math.ceil m / options.step
+    m = Math.ceil m / @options.step
 
     if ampm is 1
       @amPmIterator.setMin(1)
@@ -63,6 +68,8 @@ class Picker
       @hoursIterator.setMin(h)
       if @hoursIterator.current().getValue() is h
         @minutesIterator.setMin(m)
+        if not init and @minutesIterator.getIndex() < m
+          @minutesIterator.setCurrent(m)
       else
         @minutesIterator.setMin(0)
 

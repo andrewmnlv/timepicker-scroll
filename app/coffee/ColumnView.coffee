@@ -16,6 +16,8 @@ class ColumnView
     if @options.parent
       @getEl().appendTo @options.parent
       @_scrollToActive()
+    else
+      throw new Error "Specify parent element"
 
   _createEl: ->
     @$el = $('<div></div>').addClass @className
@@ -30,14 +32,14 @@ class ColumnView
 
   _scrollToActive: ->
     current = @data.current()
-    halfHeight = pickerHeight / 2
+    halfHeight = @options.parent.height() / 2
     top = halfHeight - current.getEl().position().top
     @_setTop(top - current.getHeight() / 2)
 #@_setTop top
 
   _checkActive: ->
     itemHeight = @data.current().getHeight()
-    halfHeight = pickerHeight / 2
+    halfHeight = @options.parent.height() / 2
     columnTop = @col.position().top
     dragItem = Math.floor (halfHeight - columnTop) / itemHeight
     if @data.getIndex() isnt dragItem and dragItem < @data.length()
@@ -45,7 +47,7 @@ class ColumnView
 
 
   _verifyPosition: (top, e)->
-    halfHeight = pickerHeight / 2
+    halfHeight = @options.parent.height() / 2
     columnHeight = @col.outerHeight()
     clearShiftY = false
 

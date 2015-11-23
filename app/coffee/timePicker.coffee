@@ -1,13 +1,11 @@
 console.log 'rdy'
 
-do ($ = jQuery, window = window) ->
+do ($ = jQuery) ->
   defaults =
     step: 5
 
   $.fn.timePicker = (options)->
     options = $.extend defaults, options
-
-    pickerHeight = 0
 
     # @include Item.coffee
 
@@ -18,14 +16,6 @@ do ($ = jQuery, window = window) ->
     # @include Picker.coffee
 
     make = ()->
-      picker = new Picker $(this)
-
-
-      # TODO: window ?
-      $(window).on 'timePicker.change', ->
-        console.log 'timePicker.change'
-        #console.log picker.getTime()
-        picker.setMinTime()
-
+      new Picker $(this), options
 
     this.each make
