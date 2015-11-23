@@ -125,17 +125,16 @@ class ColumnView
       top = e.pageY - @shiftY
       @_verifyPosition(top, e)
 
-    document.onmousemove = (e)->
+    $(window).on 'mousemove.timePicker', (e)->
       moveAt(e)
 
     $(window).on 'mouseup.timePicker', @_onMouseUp
 
 
   _onMouseUp: (e)=>
-    document.onmousemove = null
     @isDragNow = false
     @_scrollToActive()
-    $(window).off 'mouseup.timePicker, touchend.timePicker, touchmove.timePicker'
+    $(window).off 'mousemove.timePicker mouseup.timePicker touchend.timePicker touchmove.timePicker'
 
 
   getEl: ->
