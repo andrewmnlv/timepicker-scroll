@@ -1,5 +1,3 @@
-console.log 'rdy'
-
 do ($ = jQuery) ->
   defaults =
     step: 5

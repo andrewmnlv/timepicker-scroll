@@ -7,9 +7,9 @@ class Picker
 
     # TODO: window ?
     @$el.on 'timePicker.change', =>
-      console.log 'timePicker.change'
-      #console.log @.getTime()
       @_setMinTime()
+      if @options.onChange and typeof @options.onChange is 'function'
+        @options.onChange.call null, @.getTime()
 
   _createColumns: ->
     hourStart = 0
