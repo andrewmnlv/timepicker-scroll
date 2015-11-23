@@ -6,7 +6,7 @@ class Picker
     @_setMinTime(true)
 
     # TODO: window ?
-    $(window).on 'timePicker.change', =>
+    @$el.on 'timePicker.change', =>
       console.log 'timePicker.change'
       #console.log @.getTime()
       @_setMinTime()
@@ -24,23 +24,23 @@ class Picker
       minuteStart = Math.ceil minuteStart / @options.step
 
     new ColumnView
-      data: @amPmIterator = new Iterator ['am', 'pm'], amPmStart
+      data: @amPmIterator = new Iterator ['am', 'pm'], amPmStart, null, @$el
       parent: @$el
 
     new ColumnView
-      data: @hoursIterator = new Iterator([0...12], hourStart, 'hour')
+      data: @hoursIterator = new Iterator [0...12], hourStart, 'hour', @$el
       parent: @$el
 
 
-    new ColumnView
-      data: @minutesIterator = new Iterator((m for m in [0...60] by @options.step), minuteStart, 'minute')
+    @minColView = new ColumnView
+      data: @minutesIterator = new Iterator (m for m in [0...60] by @options.step), minuteStart, 'minute', @$el
       parent: @$el
 
 
     #TODO: move to plugin
     zones = ['pst', 'mst', 'cst', 'est']
     new ColumnView
-      data: @zonesIterator = new Iterator zones
+      data: @zonesIterator = new Iterator zones, 0, null, @$el
       parent: @$el
 
   getTime: ->
@@ -70,6 +70,8 @@ class Picker
         @minutesIterator.setMin(m)
         if not init and @minutesIterator.getIndex() < m
           @minutesIterator.setCurrent(m)
+          #TODO: events
+          @minColView._scrollToActive()
       else
         @minutesIterator.setMin(0)
 

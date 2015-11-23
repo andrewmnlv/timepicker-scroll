@@ -2,7 +2,7 @@ class Iterator
   data: null
   index: 0
 
-  constructor: (data, current = 0, @type = null)->
+  constructor: (data, current = 0, @type = null, @$el)->
     @_prepareItems data
     @_setCurrent current
 
@@ -54,7 +54,7 @@ class Iterator
     @current().unmark()
     @index = index
     @current().mark()
-    $(window).trigger 'timePicker.change'
+    $(@$el).trigger 'timePicker.change'
 
   _prepareItems: (array, type)->
     @data = []
