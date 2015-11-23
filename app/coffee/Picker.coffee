@@ -15,6 +15,7 @@ class Picker
     hourStart = 0
     minuteStart = 0
     amPmStart = 0
+    zoneStart = 0
 
     if @options.defaultTime
       [hourStart, minuteStart] = @options.defaultTime.split ':'
@@ -39,8 +40,10 @@ class Picker
 
     #TODO: move to plugin
     zones = ['pst', 'mst', 'cst', 'est']
+    if @options.tz
+      zoneStart = zones.indexOf @options.tz
     new ColumnView
-      data: @zonesIterator = new Iterator zones, 0, null, @$el
+      data: @zonesIterator = new Iterator zones, zoneStart, null, @$el
       parent: @$el
 
   getTime: ->
