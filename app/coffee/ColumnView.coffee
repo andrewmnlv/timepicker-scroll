@@ -106,18 +106,20 @@ class ColumnView
 
   _onTouchStart: (e)=>
     @isDragNow = true
+    @isItemClick = true
     touch = e.originalEvent.touches[0]
     @oldPosY = touch.pageY
     @shiftY = touch.pageY - @$col.position().top
 
     moveAt = (e)=>
+      @$col.addClass 'timePicker__notransition'
       touch = e.originalEvent.touches[0]
       top = touch.pageY - @shiftY
       @_verifyPosition(top, e, true)
 
     $(window).on 'touchmove.timePicker', (e)->
       e.preventDefault()
-      @$col.addClass 'timePicker__notransition'
+      @isItemClick = true
       moveAt(e)
       return false
 
