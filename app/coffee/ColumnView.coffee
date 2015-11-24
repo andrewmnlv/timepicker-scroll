@@ -80,6 +80,13 @@ class ColumnView
 
 #TODO : _.throttle
   _initEvents: ->
+    self = @
+
+    @$el.on 'click', '.timePicker__item', ->
+      if self.isItemClick
+        self.data.setCurrentByValue($(this).attr('data-value'))
+        self._scrollToActive()
+
     @$el.on 'mousewheel', _.throttle @_onMouseWheel, 200
     @$el.on 'mousedown', @_onMouseDown
     @$el.on 'touchstart', @_onTouchStart
@@ -118,6 +125,7 @@ class ColumnView
 
   _onMouseDown: (e)=>
     @isDragNow = true
+    @isItemClick = true
     @oldPosY = e.pageY
     @shiftY = e.pageY - @col.position().top
 
@@ -125,7 +133,8 @@ class ColumnView
       top = e.pageY - @shiftY
       @_verifyPosition(top, e)
 
-    $(window).on 'mousemove.timePicker', (e)->
+    $(window).on 'mousemove.timePicker', (e)=>
+      @isItemClick = false
       moveAt(e)
 
     $(window).on 'mouseup.timePicker', @_onMouseUp

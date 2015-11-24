@@ -1,6 +1,7 @@
 class Iterator
   data: null
   index: 0
+  _valueIndex: null
 
   constructor: (data, current = 0, @type = null, @$el)->
     @_prepareItems data
@@ -45,6 +46,9 @@ class Iterator
     for item, index in @data
       cb.call null, item, index
 
+  setCurrentByValue: (value)->
+    @_setCurrent(@_valueIndex[value])
+
   setCurrent: (index)->
     @_setCurrent(index)
 
@@ -58,13 +62,15 @@ class Iterator
 
   _prepareItems: (array, type)->
     @data = []
-    for num in array
+    @_valueIndex = {}
+    for num, key in array
       text = num
       if text is 0
         switch type
           when 'hour' then text = 12
           when 'minute' then text = '00'
       @data.push new Item num, text
+      @_valueIndex[num] = key
 
   _hasNext: ->
     @index < @length() - 1 and (@data[@index + 1] and not @data[@index + 1]?.disabled)

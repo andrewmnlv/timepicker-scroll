@@ -3,7 +3,7 @@ class Item
   className: 'timePicker__item'
   disabled: false
   constructor: (@value = null, text)->
-    @$el = $('<div></div>').addClass(@className).attr('value', @value).text(text)
+    @$el = $('<div></div>').addClass(@className).attr('data-value', @value).text(text)
 
 
   getEl: ->
