@@ -7,11 +7,13 @@ browserSync = require('browser-sync').create()
 sourcemaps = require 'gulp-sourcemaps'
 preprocess = require 'gulp-preprocess'
 
+
 gulp.task 'default', ['serve'], ->
   console.log 'gulp default'
 
+
 gulp.task 'coffee', ->
-  gulp.src './app/coffee/timePicker.coffee'
+  gulp.src './app/coffee/timepicker-scroll.coffee'
   .pipe sourcemaps.init()
   .pipe preprocess()
   .pipe coffee()
@@ -19,7 +21,9 @@ gulp.task 'coffee', ->
   .pipe sourcemaps.write()
   .pipe gulp.dest './public/js'
 
+
 gulp.task 'coffee-watch', ['coffee'], -> browserSync.reload()
+
 
 gulp.task 'sass', ->
   gulp.src './app/scss/**/*.scss'
@@ -29,11 +33,14 @@ gulp.task 'sass', ->
   .pipe gulp.dest './public/css'
   .pipe browserSync.stream()
 
+
 gulp.task 'html', ->
   gulp.src './app/html/**/*.html'
   .pipe gulp.dest './public'
 
+
 gulp.task 'html-watch', ['html'], -> browserSync.reload()
+
 
 gulp.task 'serve', ['coffee', 'sass', 'html'], ->
   browserSync.init
@@ -46,3 +53,19 @@ gulp.task 'serve', ['coffee', 'sass', 'html'], ->
   gulp.watch './app/coffee/**/*.coffee', ['coffee-watch']
   gulp.watch './app/scss/**/*.scss', ['sass']
   gulp.watch './app/html/**/*.html', ['html-watch']
+
+
+gulp.task 'production', ->
+  gulp.src './app/coffee/timepicker-scroll.coffee'
+  .pipe sourcemaps.init()
+  .pipe preprocess()
+  .pipe coffee()
+    .on 'error', gutil.log
+  .pipe sourcemaps.write()
+  .pipe gulp.dest './'
+
+  gulp.src './app/scss/**/*.scss'
+  .pipe sass()
+  .pipe autoprefixer
+    browsers: ['last 3 versions']
+  .pipe gulp.dest './'

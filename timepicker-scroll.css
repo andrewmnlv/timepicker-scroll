@@ -1,0 +1,63 @@
+.timePicker {
+  border: 1px solid #ADADAD;
+  width: 140px;
+  height: 150px;
+  overflow: hidden;
+  position: relative;
+  -webkit-user-select: none;
+     -moz-user-select: none;
+      -ms-user-select: none;
+          user-select: none;
+  cursor: default;
+  font-family: Arial, Helvetica, sans-serif;
+  font-weight: normal;
+  background: white; }
+  .timePicker__center {
+    position: absolute;
+    top: 50%;
+    width: 100%;
+    left: 0;
+    right: 0; }
+    .timePicker__center::before, .timePicker__center::after {
+      content: "";
+      position: absolute;
+      box-sizing: border-box;
+      border-top: 1px solid #ADADAD;
+      width: 100%;
+      margin-top: -12px; }
+    .timePicker__center::after {
+      margin-top: 12px; }
+  .timePicker__col {
+    height: 100%;
+    width: 25%;
+    float: left;
+    box-sizing: border-box;
+    position: relative; }
+    .timePicker__col:before {
+      content: ":";
+      position: absolute;
+      top: 50%;
+      left: -3px;
+      height: 24px;
+      line-height: 24px;
+      margin-top: -12px;
+      font-size: 14px;
+      color: #6194ad; }
+  .timePicker__items {
+    position: absolute;
+    width: 100%;
+    top: 50%;
+    box-sizing: border-box; }
+  .timePicker__item {
+    text-align: center;
+    box-sizing: border-box;
+    height: 24px;
+    line-height: 24px;
+    font-size: 14px;
+    color: #666666; }
+    .timePicker__item--disabled {
+      opacity: 0.5; }
+    .timePicker__item--active {
+      font-weight: bold;
+      color: #6194ad;
+      opacity: 1; }

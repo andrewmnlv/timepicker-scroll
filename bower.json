@@ -1,14 +1,13 @@
 {
-  "name": "timepicker",
+  "name": "timepicker-scroll",
   "authors": [
-    "andrewmnlv <dr.m-night@yandex.ru>"
+    "andrewmnlv"
   ],
-  "description": "",
-  "main": "",
+  "description": "Timepicker scroll",
+  "main": "timepicker-scroll.js",
   "moduleType": [],
   "license": "MIT",
   "homepage": "",
-  "private": true,
   "ignore": [
     "**/.*",
     "node_modules",
