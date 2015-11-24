@@ -1,12 +1,13 @@
 $height-cell: 24px;
 
-$color-cell: #666666;
+$color-cell: black;
 $color-cell-active: #6194ad;
 
 $border-color: #ADADAD;
 
+$color-picker-shadow: white;
+
 .timePicker {
-  border: 1px solid $border-color;
   width: 140px;
   height: 150px;
   overflow: hidden;
@@ -16,23 +17,52 @@ $border-color: #ADADAD;
   font-family: Arial, Helvetica, sans-serif;
   font-weight: normal;
   background: white;
+  z-index: 1;
+
+  &:before {
+    content: "";
+    position: absolute;
+    left: -1px;
+    right: -1px;
+    top: 0;
+    box-shadow: 0 0 40px 20px $color-picker-shadow;
+    z-index: 5;
+  }
+
+  &:after {
+    content: "";
+    position: absolute;
+    width: 100%;
+    bottom: 0;
+    left: 0;
+    box-shadow: 0 0 40px 20px $color-picker-shadow;
+    z-index: 5;
+  }
+
+  &__notransition {
+    transition: none !important;
+  }
 
   &__center {
     position: absolute;
     top: 50%;
-    width: 100%;
     left: 0;
     right: 0;
-    &::before, &::after {
-      content: "";
+    height: $height-cell;
+    margin-top: -$height-cell/2;
+    border: 1px solid $border-color;
+    &:before, &:after {
       position: absolute;
-      box-sizing: border-box;
-      border-top: 1px solid $border-color;
-      width: 100%;
-      margin-top: -$height-cell/2;
+      content: "";
+      height: 300px;
+      border-left: 1px solid $border-color;
+      left: -1px;
+      top: -150px;
+      opacity: 0.5;
     }
-    &::after {
-      margin-top: $height-cell/2;
+    &:after {
+      left: auto;
+      right: -1px;
     }
   }
 
@@ -60,6 +90,7 @@ $border-color: #ADADAD;
     width: 100%;
     top: 50%;
     box-sizing: border-box;
+    transition: 400ms cubic-bezier(0.175, 0.885, 0.32, 1.275);
   }
 
   &__item {
@@ -69,11 +100,11 @@ $border-color: #ADADAD;
     line-height: $height-cell;
     font-size: 14px;
     color: $color-cell;
+    transition: 200ms;
     &--disabled {
-      opacity: 0.5;
+      opacity: 0.3;
     }
     &--active {
-      font-weight: bold;
       color: $color-cell-active;
       opacity: 1;
     }

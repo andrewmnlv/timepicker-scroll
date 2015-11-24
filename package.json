@@ -1,5 +1,5 @@
 {
-  "name": "timepicker",
+  "name": "timepicker-scroll",
   "version": "0.0.1",
   "description": "node v5.0.0",
   "main": "gulpfile.js",

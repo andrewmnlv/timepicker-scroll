@@ -22,14 +22,14 @@ class ColumnView
 
   _createEl: ->
     @$el = $('<div></div>').addClass @className
-    @col = $('<div></div>').addClass 'timePicker__items'
+    @$col = $('<div></div>').addClass 'timePicker__items'
     @_drawItems()
-    @$el.append @col
+    @$el.append @$col
 
 
   _drawItems: ->
     @data.each (item)=>
-      @col.append item.getEl()
+      @$col.append item.getEl()
 
 
   _scrollToActive: ->
@@ -42,7 +42,7 @@ class ColumnView
   _checkActive: ->
     itemHeight = @data.current().getHeight()
     halfHeight = @options.parent.height() / 2
-    columnTop = @col.position().top
+    columnTop = @$col.position().top
     dragItem = Math.floor (halfHeight - columnTop) / itemHeight
     if @data.getIndex() isnt dragItem and dragItem < @data.length()
       @data.setCurrent dragItem
@@ -50,7 +50,7 @@ class ColumnView
 
   _verifyPosition: (top, e, isTouch = false)->
     halfHeight = @options.parent.height() / 2
-    columnHeight = @col.outerHeight()
+    columnHeight = @$col.outerHeight()
     clearShiftY = false
 
     unless columnHeight + top > halfHeight
@@ -64,17 +64,17 @@ class ColumnView
     if isTouch
       touch = e.originalEvent.touches[0]
       @oldPosY = touch.pageY
-      if clearShiftY and e then @shiftY = touch.pageY - @col.position().top
+      if clearShiftY and e then @shiftY = touch.pageY - @$col.position().top
     else
       @oldPosY = e.pageY
-      if clearShiftY and e then @shiftY = e.pageY - @col.position().top
+      if clearShiftY and e then @shiftY = e.pageY - @$col.position().top
 
     @_setTop top
     @_checkActive()
 
 
   _setTop: (top)->
-    @col.css
+    @$col.css
       top: top
 
 
@@ -108,7 +108,7 @@ class ColumnView
     @isDragNow = true
     touch = e.originalEvent.touches[0]
     @oldPosY = touch.pageY
-    @shiftY = touch.pageY - @col.position().top
+    @shiftY = touch.pageY - @$col.position().top
 
     moveAt = (e)=>
       touch = e.originalEvent.touches[0]
@@ -117,6 +117,7 @@ class ColumnView
 
     $(window).on 'touchmove.timePicker', (e)->
       e.preventDefault()
+      @$col.addClass 'timePicker__notransition'
       moveAt(e)
       return false
 
@@ -127,9 +128,10 @@ class ColumnView
     @isDragNow = true
     @isItemClick = true
     @oldPosY = e.pageY
-    @shiftY = e.pageY - @col.position().top
+    @shiftY = e.pageY - @$col.position().top
 
     moveAt = (e)=>
+      @$col.addClass 'timePicker__notransition'
       top = e.pageY - @shiftY
       @_verifyPosition(top, e)
 
@@ -141,6 +143,7 @@ class ColumnView
 
 
   _onMouseUp: (e)=>
+    @$col.removeClass 'timePicker__notransition'
     @isDragNow = false
     @_scrollToActive()
     $(window).off 'mousemove.timePicker mouseup.timePicker touchend.timePicker touchmove.timePicker'
