@@ -1,11 +1,21 @@
+$height-cell: 24px;
+
+$color-cell: #666666;
+$color-cell-active: #6194ad;
+
+$border-color: #ADADAD;
+
 .timePicker {
-  border: 1px solid black;
-  width: 150px;
-  height: 200px;
+  border: 1px solid $border-color;
+  width: 140px;
+  height: 150px;
   overflow: hidden;
   position: relative;
   user-select: none;
   cursor: default;
+  font-family: Arial, Helvetica, sans-serif;
+  font-weight: normal;
+  background: white;
 
   &__center {
     position: absolute;
@@ -13,28 +23,36 @@
     width: 100%;
     left: 0;
     right: 0;
-    //border: 1px dotted gray;
     &::before, &::after {
       content: "";
       position: absolute;
       box-sizing: border-box;
-      border-top: 1px solid gray;
+      border-top: 1px solid $border-color;
       width: 100%;
-      margin-top: -12px;
+      margin-top: -$height-cell/2;
     }
     &::after {
-      margin-top: 12px;
+      margin-top: $height-cell/2;
     }
   }
 
   &__col {
-    border: 1px solid red;
     height: 100%;
     width: 25%;
-    overflow: hidden;
     float: left;
     box-sizing: border-box;
     position: relative;
+    &:before {
+      content: ":";
+      position: absolute;
+      top: 50%;
+      left: -3px;
+      height: $height-cell;
+      line-height: $height-cell;
+      margin-top: -$height-cell/2;
+      font-size: 14px;
+      color: $color-cell-active;
+    }
   }
 
   &__items {
@@ -47,14 +65,17 @@
   &__item {
     text-align: center;
     box-sizing: border-box;
-    height: 24px;
-    line-height: 24px;
+    height: $height-cell;
+    line-height: $height-cell;
+    font-size: 14px;
+    color: $color-cell;
+    &--disabled {
+      opacity: 0.5;
+    }
     &--active {
       font-weight: bold;
-      color: red
-    }
-    &--disabled{
-      opacity: 0.5;
+      color: $color-cell-active;
+      opacity: 1;
     }
   }
 
