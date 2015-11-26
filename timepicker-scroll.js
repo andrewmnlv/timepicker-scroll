@@ -526,6 +526,9 @@
             console.log('do nothing');
           } else {
             this.hoursIterator.setMin(h);
+            if (h === 11 && ampm === 1 && !(m < this.minutesIterator.length())) {
+              this.hoursIterator.setMin(12);
+            }
             if (this.hoursIterator.current().getValue() === h) {
               this.minutesIterator.setMin(m);
               if (!init && this.minutesIterator.getIndex() < m) {
@@ -533,7 +536,11 @@
                 this.minColView._scrollToActive();
               }
             } else {
-              this.minutesIterator.setMin(0);
+              if (this.hoursIterator.current().getValue() < h) {
+                this.minutesIterator.setMin(60);
+              } else {
+                this.minutesIterator.setMin(0);
+              }
             }
           }
           if (this.amPmIterator.current().getValue() === 'am' && ampm === 1) {

@@ -97,6 +97,8 @@ class Picker
       console.log 'do nothing'
     else
       @hoursIterator.setMin(h)
+      if h is 11 and ampm is 1 and not (m < @minutesIterator.length())
+        @hoursIterator.setMin(12)
       if @hoursIterator.current().getValue() is h
         @minutesIterator.setMin(m)
         if not init and @minutesIterator.getIndex() < m
@@ -104,7 +106,10 @@ class Picker
           #TODO: events
           @minColView._scrollToActive()
       else
-        @minutesIterator.setMin(0)
+        if @hoursIterator.current().getValue() < h
+          @minutesIterator.setMin(60)
+        else
+          @minutesIterator.setMin(0)
 
     if @amPmIterator.current().getValue() is 'am' and ampm is 1
       console.log 'disable all'
