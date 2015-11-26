@@ -60,15 +60,15 @@ class Iterator
     @current().mark()
     $(@$el).trigger 'timePicker.change'
 
-  _prepareItems: (array, type)->
+  _prepareItems: (array)->
     @data = []
     @_valueIndex = {}
     for num, key in array
-      text = num
-      if text is 0
-        switch type
-          when 'hour' then text = 12
-          when 'minute' then text = '00'
+      if @type is 'hour' or @type is 'minute'
+        text = String(num + 100).substr -2
+        if num is 0 and @type is 'hour' then text = 12
+      else
+        text = num
       @data.push new Item num, text
       @_valueIndex[num] = key
 

@@ -19,10 +19,14 @@ class Picker
 
     if @options.defaultTime
       [hourStart, minuteStart] = @options.defaultTime.split ':'
-      if hourStart > 11
-        amPmStart = 1
-        hourStart = hourStart % 12
-      minuteStart = Math.ceil minuteStart / @options.step
+    else
+      curDate = new Date()
+      hourStart = curDate.getHours()
+      minuteStart = curDate.getMinutes()
+    if hourStart > 11
+      amPmStart = 1
+      hourStart = hourStart % 12
+    minuteStart = Math.ceil minuteStart / @options.step
 
     new ColumnView
       data: @amPmIterator = new Iterator ['am', 'pm'], amPmStart, null, @$el
@@ -66,7 +70,7 @@ class Picker
     if h > 11
       ampm = 1
       h %= 12
-    h =  parseInt h
+    h = parseInt h
     m = Math.ceil m / @options.step
 
     @amPmIterator.setMin(ampm)
