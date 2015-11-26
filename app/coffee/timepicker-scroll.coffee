@@ -1,6 +1,7 @@
 do ($ = jQuery) ->
   defaults =
     step: 5
+    minTime: false
 
   $.fn.timePicker = (options)->
     options = $.extend defaults, options

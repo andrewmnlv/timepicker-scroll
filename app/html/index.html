@@ -16,15 +16,19 @@
 
 </div>
 <script>
-    $('#timepicker').timePicker({
+    var pk = $('#timepicker').timePicker({
         step: 10,
         defaultTime: '6:13',
         minTime: '14:34',
         tz: 'mst',
-        onChange: function(timeObj){
+        onChange: function (timeObj) {
             console.log(timeObj)
         }
     });
+
+    setTimeout(function () {
+        //pk.setMinTime(false)
+    }, 4000);
 </script>
 </body>
 </html>

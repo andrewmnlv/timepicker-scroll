@@ -23,10 +23,23 @@ class Picker
       curDate = new Date()
       hourStart = curDate.getHours()
       minuteStart = curDate.getMinutes()
+
     if hourStart > 11
       amPmStart = 1
       hourStart = hourStart % 12
+
     minuteStart = Math.ceil minuteStart / @options.step
+    minutesArr = (m for m in [0...60] by @options.step)
+    unless minuteStart < minutesArr.length
+      minuteStart = 0
+      hourStart++
+      if hourStart > 11
+        unless amPmStart
+          hourStart = 0
+        else
+          hourStart = 11
+          console.log minuteStart = minutesArr.length - 1
+          @options.minTime = '23:59'
 
     new ColumnView
       data: @amPmIterator = new Iterator ['am', 'pm'], amPmStart, null, @$el
@@ -63,7 +76,12 @@ class Picker
   _setMinTime: (init = false, minTime)->
     if minTime isnt undefined
       @options.minTime = minTime
-    unless @options.minTime
+    if init and not @options.minTime
+      return
+    if @options.minTime is false
+      @amPmIterator.setMin(0)
+      @hoursIterator.setMin(0)
+      @minutesIterator.setMin(0)
       return
     ampm = 0
     [h,m] = @options.minTime.split ':'

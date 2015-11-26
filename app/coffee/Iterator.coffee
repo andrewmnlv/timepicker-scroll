@@ -53,6 +53,9 @@ class Iterator
     @_setCurrent(index)
 
   _setCurrent: (index)->
+    unless index < @length()
+      throw new Error "index #{index} > #{@length()}"
+      return
     if @data[index].disabled
       return
     @current().unmark()

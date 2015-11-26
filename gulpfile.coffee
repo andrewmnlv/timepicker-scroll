@@ -8,21 +8,21 @@ sourcemaps = require 'gulp-sourcemaps'
 preprocess = require 'gulp-preprocess'
 
 
-gulp.task 'default', ['serve'], ->
+gulp.task 'default', ['serve', 'production'], ->
   console.log 'gulp default'
 
 
 gulp.task 'coffee', ->
   gulp.src './app/coffee/timepicker-scroll.coffee'
-  .pipe sourcemaps.init()
   .pipe preprocess()
+  .pipe sourcemaps.init()
   .pipe coffee()
     .on 'error', gutil.log
   .pipe sourcemaps.write()
   .pipe gulp.dest './public/js'
 
 
-gulp.task 'coffee-watch', ['coffee'], -> browserSync.reload()
+gulp.task 'coffee-watch', ['coffee', 'production'], -> browserSync.reload()
 
 
 gulp.task 'sass', ->
@@ -51,17 +51,15 @@ gulp.task 'serve', ['coffee', 'sass', 'html'], ->
       baseDir: "./public"
 
   gulp.watch './app/coffee/**/*.coffee', ['coffee-watch']
-  gulp.watch './app/scss/**/*.scss', ['sass']
+  gulp.watch './app/scss/**/*.scss', ['sass', 'production']
   gulp.watch './app/html/**/*.html', ['html-watch']
 
 
 gulp.task 'production', ->
   gulp.src './app/coffee/timepicker-scroll.coffee'
-  .pipe sourcemaps.init()
   .pipe preprocess()
   .pipe coffee()
     .on 'error', gutil.log
-  .pipe sourcemaps.write()
   .pipe gulp.dest './'
 
   gulp.src './app/scss/**/*.scss'
