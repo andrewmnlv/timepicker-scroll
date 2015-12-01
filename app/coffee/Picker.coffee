@@ -1,5 +1,6 @@
 class Picker
   $el: null
+
   constructor: (@$el, @options)->
     @$el.addClass('timePicker').append $('<div class="timePicker__center"></div>')
     @_createColumns()
@@ -11,35 +12,60 @@ class Picker
       if @options.onChange and typeof @options.onChange is 'function'
         @options.onChange.call null, @.getTime()
 
-  _createColumns: ->
-    hourStart = 0
-    minuteStart = 0
-    amPmStart = 0
-    zoneStart = 0
+
+  _prepareTime: ->
+    hourResult = 0
+    minuteResult = 0
+    amPmResult = 0
 
     if @options.defaultTime
       [hourStart, minuteStart] = @options.defaultTime.split ':'
+      hourStart = parseInt hourStart
+      minuteStart = parseInt minuteStart
     else
       curDate = new Date()
       hourStart = curDate.getHours()
       minuteStart = curDate.getMinutes()
+    amPmStart = 0
+
+    hourResult = hourStart
 
     if hourStart > 11
       amPmStart = 1
-      hourStart = hourStart % 12
+      hourResult = hourStart % 12
 
-    minuteStart = Math.ceil minuteStart / @options.step
-    minutesArr = (m for m in [0...60] by @options.step)
+    amPmResult = amPmStart
+
+    minuteResult = minuteStart = Math.ceil minuteStart / @options.step
+    console.log minutesArr = (m for m in [0...60] by @options.step)
+
     unless minuteStart < minutesArr.length
-      minuteStart = 0
-      hourStart++
-      if hourStart > 11
+      minuteResult = 0
+      hourResult++
+      if hourResult > 11
         unless amPmStart
-          hourStart = 0
+          hourResult = 0
+          amPmStart = 1
         else
-          hourStart = 11
-          console.log minuteStart = minutesArr.length - 1
-          @options.minTime = '23:59'
+          hourResult = 11
+          minuteResult = minutesArr.length - 1
+        amPmResult = amPmStart
+
+    console.log @options.defaultTime
+    console.log hourResult, minuteResult * @options.step, if amPmResult then 'pm' else 'am'
+
+    h: hourResult
+    m: minuteResult
+    ampm: amPmResult
+
+
+  _createColumns: ->
+    cfg = @_prepareTime()
+
+    hourStart = cfg.h
+    minuteStart = cfg.m
+    amPmStart = cfg.ampm
+    zoneStart = 0
 
     new ColumnView
       data: @amPmIterator = new Iterator ['am', 'pm'], amPmStart, null, @$el
@@ -49,11 +75,9 @@ class Picker
       data: @hoursIterator = new Iterator [0...12], hourStart, 'hour', @$el
       parent: @$el
 
-
     @minColView = new ColumnView
       data: @minutesIterator = new Iterator (m for m in [0...60] by @options.step), minuteStart, 'minute', @$el
       parent: @$el
-
 
     #TODO: move to plugin
     zones = ['pst', 'mst', 'cst', 'est']
@@ -63,11 +87,13 @@ class Picker
       data: @zonesIterator = new Iterator zones, zoneStart, null, @$el
       parent: @$el
 
+
   getTime: ->
     hour: @hoursIterator.current().getValue()
     minute: @minutesIterator.current().getValue()
     ampm: @amPmIterator.current().getValue()
     tz: @zonesIterator.current().getValue()
+
 
   setMinTime: (minTime)->
     @_setMinTime false, minTime

@@ -415,45 +415,66 @@
           })(this));
         }
 
-        Picker.prototype._createColumns = function() {
-          var amPmStart, curDate, hourStart, m, minuteStart, minutesArr, ref, zoneStart, zones;
-          hourStart = 0;
-          minuteStart = 0;
-          amPmStart = 0;
-          zoneStart = 0;
+        Picker.prototype._prepareTime = function() {
+          var amPmResult, amPmStart, curDate, hourResult, hourStart, m, minuteResult, minuteStart, minutesArr, ref;
+          hourResult = 0;
+          minuteResult = 0;
+          amPmResult = 0;
           if (this.options.defaultTime) {
             ref = this.options.defaultTime.split(':'), hourStart = ref[0], minuteStart = ref[1];
+            hourStart = parseInt(hourStart);
+            minuteStart = parseInt(minuteStart);
           } else {
             curDate = new Date();
             hourStart = curDate.getHours();
             minuteStart = curDate.getMinutes();
           }
+          amPmStart = 0;
+          hourResult = hourStart;
           if (hourStart > 11) {
             amPmStart = 1;
-            hourStart = hourStart % 12;
+            hourResult = hourStart % 12;
           }
-          minuteStart = Math.ceil(minuteStart / this.options.step);
-          minutesArr = (function() {
+          amPmResult = amPmStart;
+          minuteResult = minuteStart = Math.ceil(minuteStart / this.options.step);
+          console.log(minutesArr = (function() {
             var i, ref1, results;
             results = [];
             for (m = i = 0, ref1 = this.options.step; i < 60; m = i += ref1) {
               results.push(m);
             }
             return results;
-          }).call(this);
+          }).call(this));
           if (!(minuteStart < minutesArr.length)) {
-            minuteStart = 0;
-            hourStart++;
-            if (hourStart > 11) {
+            minuteResult = 0;
+            hourResult++;
+            if (hourResult > 11) {
               if (!amPmStart) {
-                hourStart = 0;
+                hourResult = 0;
+                amPmStart = 1;
               } else {
-                hourStart = 11;
-                console.log(minuteStart = minutesArr.length - 1);
-                this.options.minTime = '23:59';
+                hourResult = 11;
+                minuteResult = minutesArr.length - 1;
               }
+              amPmResult = amPmStart;
             }
           }
+          console.log(this.options.defaultTime);
+          console.log(hourResult, minuteResult * this.options.step, amPmResult ? 'pm' : 'am');
+          return {
+            h: hourResult,
+            m: minuteResult,
+            ampm: amPmResult
+          };
+        };
+
+        Picker.prototype._createColumns = function() {
+          var amPmStart, cfg, hourStart, m, minuteStart, zoneStart, zones;
+          cfg = this._prepareTime();
+          hourStart = cfg.h;
+          minuteStart = cfg.m;
+          amPmStart = cfg.ampm;
+          zoneStart = 0;
           new ColumnView({
             data: this.amPmIterator = new Iterator(['am', 'pm'], amPmStart, null, this.$el),
             parent: this.$el
@@ -464,9 +485,9 @@
           });
           this.minColView = new ColumnView({
             data: this.minutesIterator = new Iterator((function() {
-              var i, ref1, results;
+              var i, ref, results;
               results = [];
-              for (m = i = 0, ref1 = this.options.step; i < 60; m = i += ref1) {
+              for (m = i = 0, ref = this.options.step; i < 60; m = i += ref) {
                 results.push(m);
               }
               return results;
