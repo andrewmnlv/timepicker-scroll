@@ -13,19 +13,16 @@ class Picker
         @options.onChange.call null, @.getTime()
 
 
-  _prepareTime: ->
+  _prepareTime: (timeString)->
     hourResult = 0
     minuteResult = 0
     amPmResult = 0
+    isNextDay = false
 
-    if @options.defaultTime
-      [hourStart, minuteStart] = @options.defaultTime.split ':'
-      hourStart = parseInt hourStart
-      minuteStart = parseInt minuteStart
-    else
-      curDate = new Date()
-      hourStart = curDate.getHours()
-      minuteStart = curDate.getMinutes()
+    [hourStart, minuteStart] = timeString.split ':'
+    hourStart = parseInt hourStart
+    minuteStart = parseInt minuteStart
+
     amPmStart = 0
 
     hourResult = hourStart
@@ -37,7 +34,7 @@ class Picker
     amPmResult = amPmStart
 
     minuteResult = minuteStart = Math.ceil minuteStart / @options.step
-    console.log minutesArr = (m for m in [0...60] by @options.step)
+    minutesArr = (m for m in [0...60] by @options.step)
 
     unless minuteStart < minutesArr.length
       minuteResult = 0
@@ -47,20 +44,25 @@ class Picker
           hourResult = 0
           amPmStart = 1
         else
+          isNextDay = true
           hourResult = 11
           minuteResult = minutesArr.length - 1
         amPmResult = amPmStart
 
-    console.log @options.defaultTime
-    console.log hourResult, minuteResult * @options.step, if amPmResult then 'pm' else 'am'
-
     h: hourResult
     m: minuteResult
     ampm: amPmResult
+    isNextDay: isNextDay
 
 
   _createColumns: ->
-    cfg = @_prepareTime()
+    if @options.defaultTime
+      defaultTime = @options.defaultTime
+    else
+      curDate = new Date()
+      defaultTime = "#{curDate.getHours()}:#{curDate.getMinutes()}"
+
+    cfg = @_prepareTime(defaultTime)
 
     hourStart = cfg.h
     minuteStart = cfg.m
@@ -97,6 +99,7 @@ class Picker
 
   setMinTime: (minTime)->
     @_setMinTime false, minTime
+# roll it
 
 
   _setMinTime: (init = false, minTime)->
@@ -109,13 +112,18 @@ class Picker
       @hoursIterator.setMin(0)
       @minutesIterator.setMin(0)
       return
-    ampm = 0
-    [h,m] = @options.minTime.split ':'
-    if h > 11
-      ampm = 1
-      h %= 12
-    h = parseInt h
-    m = Math.ceil m / @options.step
+
+    cfg = @_prepareTime @options.minTime
+
+    ampm = cfg.ampm
+    h = cfg.h
+    m = cfg.m
+
+    if cfg.isNextDay
+      console.log 'next day, disable all'
+      @hoursIterator.setMin(12)
+      @minutesIterator.setMin(60)
+      return
 
     @amPmIterator.setMin(ampm)
 

@@ -415,20 +415,15 @@
           })(this));
         }
 
-        Picker.prototype._prepareTime = function() {
-          var amPmResult, amPmStart, curDate, hourResult, hourStart, m, minuteResult, minuteStart, minutesArr, ref;
+        Picker.prototype._prepareTime = function(timeString) {
+          var amPmResult, amPmStart, hourResult, hourStart, isNextDay, m, minuteResult, minuteStart, minutesArr, ref;
           hourResult = 0;
           minuteResult = 0;
           amPmResult = 0;
-          if (this.options.defaultTime) {
-            ref = this.options.defaultTime.split(':'), hourStart = ref[0], minuteStart = ref[1];
-            hourStart = parseInt(hourStart);
-            minuteStart = parseInt(minuteStart);
-          } else {
-            curDate = new Date();
-            hourStart = curDate.getHours();
-            minuteStart = curDate.getMinutes();
-          }
+          isNextDay = false;
+          ref = timeString.split(':'), hourStart = ref[0], minuteStart = ref[1];
+          hourStart = parseInt(hourStart);
+          minuteStart = parseInt(minuteStart);
           amPmStart = 0;
           hourResult = hourStart;
           if (hourStart > 11) {
@@ -437,14 +432,14 @@
           }
           amPmResult = amPmStart;
           minuteResult = minuteStart = Math.ceil(minuteStart / this.options.step);
-          console.log(minutesArr = (function() {
+          minutesArr = (function() {
             var i, ref1, results;
             results = [];
             for (m = i = 0, ref1 = this.options.step; i < 60; m = i += ref1) {
               results.push(m);
             }
             return results;
-          }).call(this));
+          }).call(this);
           if (!(minuteStart < minutesArr.length)) {
             minuteResult = 0;
             hourResult++;
@@ -453,24 +448,30 @@
                 hourResult = 0;
                 amPmStart = 1;
               } else {
+                isNextDay = true;
                 hourResult = 11;
                 minuteResult = minutesArr.length - 1;
               }
               amPmResult = amPmStart;
             }
           }
-          console.log(this.options.defaultTime);
-          console.log(hourResult, minuteResult * this.options.step, amPmResult ? 'pm' : 'am');
           return {
             h: hourResult,
             m: minuteResult,
-            ampm: amPmResult
+            ampm: amPmResult,
+            isNextDay: isNextDay
           };
         };
 
         Picker.prototype._createColumns = function() {
-          var amPmStart, cfg, hourStart, m, minuteStart, zoneStart, zones;
-          cfg = this._prepareTime();
+          var amPmStart, cfg, curDate, defaultTime, hourStart, m, minuteStart, zoneStart, zones;
+          if (this.options.defaultTime) {
+            defaultTime = this.options.defaultTime;
+          } else {
+            curDate = new Date();
+            defaultTime = (curDate.getHours()) + ":" + (curDate.getMinutes());
+          }
+          cfg = this._prepareTime(defaultTime);
           hourStart = cfg.h;
           minuteStart = cfg.m;
           amPmStart = cfg.ampm;
@@ -518,7 +519,7 @@
         };
 
         Picker.prototype._setMinTime = function(init, minTime) {
-          var ampm, h, m, ref;
+          var ampm, cfg, h, m;
           if (init == null) {
             init = false;
           }
@@ -534,14 +535,16 @@
             this.minutesIterator.setMin(0);
             return;
           }
-          ampm = 0;
-          ref = this.options.minTime.split(':'), h = ref[0], m = ref[1];
-          if (h > 11) {
-            ampm = 1;
-            h %= 12;
+          cfg = this._prepareTime(this.options.minTime);
+          ampm = cfg.ampm;
+          h = cfg.h;
+          m = cfg.m;
+          if (cfg.isNextDay) {
+            console.log('next day, disable all');
+            this.hoursIterator.setMin(12);
+            this.minutesIterator.setMin(60);
+            return;
           }
-          h = parseInt(h);
-          m = Math.ceil(m / this.options.step);
           this.amPmIterator.setMin(ampm);
           if (this.amPmIterator.current().getValue() === 'pm' && ampm === 0) {
             console.log('do nothing');
