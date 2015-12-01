@@ -18,8 +18,8 @@
 <script>
     var pk = $('#timepicker').timePicker({
         step: 10,
-        defaultTime: '6:13',
-        minTime: '14:34',
+        defaultTime: '13:45',
+        minTime: '23:54',
         tz: 'mst',
         onChange: function (timeObj) {
             console.log(timeObj)
@@ -27,7 +27,7 @@
     });
 
     setTimeout(function () {
-        //pk.setMinTime(false)
+        //pk.setMinTime('13:30')
     }, 4000);
 </script>
 </body>

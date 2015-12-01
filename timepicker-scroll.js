@@ -464,23 +464,21 @@
         };
 
         Picker.prototype._createColumns = function() {
-          var amPmStart, cfg, curDate, defaultTime, hourStart, m, minuteStart, zoneStart, zones;
-          if (this.options.defaultTime) {
-            defaultTime = this.options.defaultTime;
-          } else {
+          var amPmStart, cfg, curDate, hourStart, m, minuteStart, zoneStart, zones;
+          if (!this.options.defaultTime) {
             curDate = new Date();
-            defaultTime = (curDate.getHours()) + ":" + (curDate.getMinutes());
+            this.options.defaultTime = (curDate.getHours()) + ":" + (curDate.getMinutes());
           }
-          cfg = this._prepareTime(defaultTime);
+          cfg = this._prepareTime(this.options.defaultTime);
           hourStart = cfg.h;
           minuteStart = cfg.m;
           amPmStart = cfg.ampm;
           zoneStart = 0;
-          new ColumnView({
+          this.amPmColView = new ColumnView({
             data: this.amPmIterator = new Iterator(['am', 'pm'], amPmStart, null, this.$el),
             parent: this.$el
           });
-          new ColumnView({
+          this.hourColView = new ColumnView({
             data: this.hoursIterator = new Iterator([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11], hourStart, 'hour', this.$el),
             parent: this.$el
           });
@@ -515,7 +513,17 @@
         };
 
         Picker.prototype.setMinTime = function(minTime) {
-          return this._setMinTime(false, minTime);
+          var cfg;
+          this._setMinTime(false, minTime);
+          if (minTime && parseInt(minTime.replace(':', '')) > parseInt(this.options.defaultTime.replace(':', ''))) {
+            cfg = this._prepareTime(minTime);
+            this.amPmIterator.setCurrent(cfg.ampm);
+            this.amPmColView._scrollToActive();
+            this.hoursIterator.setCurrent(cfg.h);
+            this.hourColView._scrollToActive();
+            this.minutesIterator.setCurrent(cfg.m);
+            return this.minColView._scrollToActive();
+          }
         };
 
         Picker.prototype._setMinTime = function(init, minTime) {
@@ -541,6 +549,7 @@
           m = cfg.m;
           if (cfg.isNextDay) {
             console.log('next day, disable all');
+            this.amPmIterator.setMin(1);
             this.hoursIterator.setMin(12);
             this.minutesIterator.setMin(60);
             return;

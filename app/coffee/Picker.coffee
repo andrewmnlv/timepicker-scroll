@@ -56,24 +56,23 @@ class Picker
 
 
   _createColumns: ->
-    if @options.defaultTime
-      defaultTime = @options.defaultTime
-    else
-      curDate = new Date()
-      defaultTime = "#{curDate.getHours()}:#{curDate.getMinutes()}"
 
-    cfg = @_prepareTime(defaultTime)
+    unless @options.defaultTime
+      curDate = new Date()
+      @options.defaultTime = "#{curDate.getHours()}:#{curDate.getMinutes()}"
+
+    cfg = @_prepareTime(@options.defaultTime)
 
     hourStart = cfg.h
     minuteStart = cfg.m
     amPmStart = cfg.ampm
     zoneStart = 0
 
-    new ColumnView
+    @amPmColView = new ColumnView
       data: @amPmIterator = new Iterator ['am', 'pm'], amPmStart, null, @$el
       parent: @$el
 
-    new ColumnView
+    @hourColView = new ColumnView
       data: @hoursIterator = new Iterator [0...12], hourStart, 'hour', @$el
       parent: @$el
 
@@ -99,8 +98,14 @@ class Picker
 
   setMinTime: (minTime)->
     @_setMinTime false, minTime
-# roll it
-
+    if minTime and parseInt(minTime.replace(':','')) > parseInt(@options.defaultTime.replace(':',''))
+        cfg = @_prepareTime(minTime)
+        @amPmIterator.setCurrent(cfg.ampm)
+        @amPmColView._scrollToActive()
+        @hoursIterator.setCurrent(cfg.h)
+        @hourColView._scrollToActive()
+        @minutesIterator.setCurrent(cfg.m)
+        @minColView._scrollToActive()
 
   _setMinTime: (init = false, minTime)->
     if minTime isnt undefined
@@ -121,6 +126,7 @@ class Picker
 
     if cfg.isNextDay
       console.log 'next day, disable all'
+      @amPmIterator.setMin(1)
       @hoursIterator.setMin(12)
       @minutesIterator.setMin(60)
       return
