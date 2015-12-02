@@ -56,7 +56,6 @@ class Picker
 
 
   _createColumns: ->
-
     unless @options.defaultTime
       curDate = new Date()
       @options.defaultTime = "#{curDate.getHours()}:#{curDate.getMinutes()}"
@@ -98,14 +97,16 @@ class Picker
 
   setMinTime: (minTime)->
     @_setMinTime false, minTime
-    if minTime and parseInt(minTime.replace(':','')) > parseInt(@options.defaultTime.replace(':',''))
-        cfg = @_prepareTime(minTime)
-        @amPmIterator.setCurrent(cfg.ampm)
-        @amPmColView._scrollToActive()
-        @hoursIterator.setCurrent(cfg.h)
-        @hourColView._scrollToActive()
-        @minutesIterator.setCurrent(cfg.m)
-        @minColView._scrollToActive()
+    curValue = @getTime()
+    hour = if curValue.ampm is "pm" then curValue.hour + 12 else curValue.hour
+    if minTime and parseInt(minTime.replace(':', '')) > parseInt(hour * 100 + curValue.minute)
+      cfg = @_prepareTime(minTime)
+      @amPmIterator.setCurrent(cfg.ampm)
+      @amPmColView._scrollToActive()
+      @hoursIterator.setCurrent(cfg.h)
+      @hourColView._scrollToActive()
+      @minutesIterator.setCurrent(cfg.m)
+      @minColView._scrollToActive()
 
   _setMinTime: (init = false, minTime)->
     if minTime isnt undefined

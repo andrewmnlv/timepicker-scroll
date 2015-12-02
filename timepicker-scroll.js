@@ -513,9 +513,11 @@
         };
 
         Picker.prototype.setMinTime = function(minTime) {
-          var cfg;
+          var cfg, curValue, hour;
           this._setMinTime(false, minTime);
-          if (minTime && parseInt(minTime.replace(':', '')) > parseInt(this.options.defaultTime.replace(':', ''))) {
+          curValue = this.getTime();
+          hour = curValue.ampm === "pm" ? curValue.hour + 12 : curValue.hour;
+          if (minTime && parseInt(minTime.replace(':', '')) > parseInt(hour * 100 + curValue.minute)) {
             cfg = this._prepareTime(minTime);
             this.amPmIterator.setCurrent(cfg.ampm);
             this.amPmColView._scrollToActive();
